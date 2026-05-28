@@ -43,6 +43,7 @@ enable_testing()
 # Source lists grow per phase. kiptv_core holds testable, UI-free logic.
 set(KIPTV_CORE_SOURCES
     src/core/parse.cpp
+    src/api/urlbuilder.cpp
     src/models/category.cpp
     src/models/serverinfo.cpp
     src/models/livestream.cpp
