@@ -47,6 +47,7 @@ set(KIPTV_CORE_SOURCES
     src/models/serverinfo.cpp
     src/models/livestream.cpp
     src/models/vodstream.cpp
+    src/models/series.cpp
 )
 
 add_library(kiptv_core STATIC ${KIPTV_CORE_SOURCES})

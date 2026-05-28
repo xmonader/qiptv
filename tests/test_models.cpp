@@ -1,5 +1,6 @@
 #include "models/category.h"
 #include "models/livestream.h"
+#include "models/series.h"
 #include "models/serverinfo.h"
 #include "models/vodstream.h"
 
@@ -117,6 +118,52 @@ private Q_SLOTS:
         QCOMPARE(v.plot, QStringLiteral("A story"));
         QCOMPARE(v.rating, 8.1);
         QCOMPARE(v.backdropPath, QStringLiteral("cdn/bd.jpg")); // array -> first
+    }
+
+    void seriesListParse()
+    {
+        const QByteArray json = R"([
+            {"series_id":"3001","name":"Show A","cover":"cdn/s.jpg",
+             "category_id":"7","plot":"Plot","rating":"9.0","last_modified":"1700000000"}
+        ])";
+        const auto list = seriesListFromJson(json);
+        QCOMPARE(list.size(), 1);
+        QCOMPARE(list[0].seriesId, 3001);
+        QCOMPARE(list[0].name, QStringLiteral("Show A"));
+        QCOMPARE(list[0].rating, 9.0);
+        QCOMPARE(list[0].lastModified, Q_INT64_C(1700000000));
+    }
+
+    void seriesInfoParsesAndSortsEpisodes()
+    {
+        // episodes is an object keyed by season; episodes arrive out of order.
+        const QByteArray json = R"({
+            "info":{"name":"Show A","plot":"Plot","genre":"Drama","rating":"9.0"},
+            "episodes":{
+                "2":[{"id":"20","episode_num":1,"title":"S2E1","container_extension":"mkv"}],
+                "1":[{"id":"11","episode_num":2,"title":"S1E2","container_extension":"mp4",
+                      "info":{"plot":"ep plot","duration":"00:42:00"}},
+                     {"id":"10","episode_num":1,"title":"S1E1","container_extension":"mp4"}]
+            }
+        })";
+        const SeriesInfo si = SeriesInfo::fromJson(json);
+        QCOMPARE(si.name, QStringLiteral("Show A"));
+        QCOMPARE(si.episodes.size(), 3);
+        // Sorted by (season, episodeNum): S1E1, S1E2, S2E1.
+        QCOMPARE(si.episodes[0].id, QStringLiteral("10"));
+        QCOMPARE(si.episodes[1].id, QStringLiteral("11"));
+        QCOMPARE(si.episodes[1].plot, QStringLiteral("ep plot"));
+        QCOMPARE(si.episodes[2].id, QStringLiteral("20"));
+        QCOMPARE(si.episodes[2].season, 2);
+        const QVector<int> seasons = si.seasons();
+        QCOMPARE(seasons, (QVector<int>{1, 2}));
+    }
+
+    void seriesInfoEmptyIsSafe()
+    {
+        const SeriesInfo si = SeriesInfo::fromJson("{}");
+        QCOMPARE(si.episodes.size(), 0);
+        QCOMPARE(si.seasons().size(), 0);
     }
 };
 
