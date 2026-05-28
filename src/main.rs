@@ -1,10 +1,16 @@
 use eframe::egui;
 use egui::{CentralPanel, TopBottomPanel, SidePanel};
 
+mod models;
+mod parsers;
+
+use models::Playlist;
+use parsers::parse_playlist;
+
 struct KiptvApp {
-    playlists: Vec<String>,
-    current_playlist: Option<String>,
-    channels: Vec<Channel>,
+    playlists: Vec<Playlist>,
+    current_playlist: Option<usize>,
+    search_query: String,
 }
 
 impl Default for KiptvApp {
@@ -12,7 +18,7 @@ impl Default for KiptvApp {
         Self {
             playlists: Vec::new(),
             current_playlist: None,
-            channels: Vec::new(),
+            search_query: String::new(),
         }
     }
 }
@@ -23,8 +29,8 @@ impl eframe::App for KiptvApp {
             egui::menu::bar(ui, |ui| {
                 ui.menu_button("File", |ui| {
                     if ui.button("Open Playlist").clicked() {
-                        // TODO: Open file dialog
-                        println!("Open playlist");
+                        // TODO: Integrate rfd for file dialog
+                        println!("Open playlist dialog");
                     }
                     if ui.button("Quit").clicked() {
                         std::process::exit(0);
@@ -38,32 +44,49 @@ impl eframe::App for KiptvApp {
 
         SidePanel::left("playlists").show(ctx, |ui| {
             ui.heading("Playlists");
-            for playlist in &self.playlists {
-                if ui.selectable_label(self.current_playlist.as_ref() == Some(playlist), playlist).clicked() {
-                    self.current_playlist = Some(playlist.clone());
+            for (idx, playlist) in self.playlists.iter().enumerate() {
+                if ui.selectable_label(self.current_playlist == Some(idx), &playlist.name).clicked() {
+                    self.current_playlist = Some(idx);
                 }
             }
         });
 
         SidePanel::right("channels").show(ctx, |ui| {
             ui.heading("Channels");
-            // TODO: Channel list
+            ui.horizontal(|ui| {
+                ui.label("Search:");
+                ui.text_edit_singleline(&mut self.search_query);
+            });
+
+            if let Some(idx) = self.current_playlist {
+                let playlist = &self.playlists[idx];
+                let channels = if self.search_query.is_empty() {
+                    playlist.channels.iter().collect::<Vec<_>>()
+                } else {
+                    playlist.search(&self.search_query)
+                };
+
+                for channel in channels {
+                    if ui.button(&channel.name).clicked() {
+                        println!("Playing: {} - {}", channel.name, channel.url);
+                        // TODO: Start playback
+                    }
+                }
+            }
         });
 
         CentralPanel::default().show(ctx, |ui| {
             ui.vertical_centered(|ui| {
                 ui.heading("kiptv - IPTV Player");
-                ui.label("Open a playlist to get started");
+                if self.playlists.is_empty() {
+                    ui.label("Open a playlist to get started");
+                } else if let Some(idx) = self.current_playlist {
+                    let playlist = &self.playlists[idx];
+                    ui.label(format!("{} channels loaded", playlist.channels.len()));
+                }
             });
         });
     }
-}
-
-#[derive(Clone)]
-struct Channel {
-    name: String,
-    url: String,
-    group: String,
 }
 
 fn main() -> eframe::Result<()> {
