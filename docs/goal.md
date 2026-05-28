@@ -84,4 +84,8 @@ Build kiptv, a native KDE desktop application for watching IPTV streams with pla
 - Escalate only when: missing system dependencies, architectural deadlock, or scope ambiguity
 
 ## Progress Log
-- 2026-05-28: Goal created, awaiting execution
+- 2026-05-28: Goal created
+- 2026-05-28: Phase 1 complete - Project scaffolded with egui
+- 2026-05-28: Phase 2 complete - M3U/XSPF parsers implemented with tests
+- 2026-05-28: Phase 3 complete - File dialog and channel browser UI
+- Next: Phase 4 - Video playback integration
