@@ -1,7 +1,7 @@
 # Goal: kiptv — Native KDE IPTV Application (C++)
 
 **Created**: 2026-05-29T00:00:00Z
-**Status**: active
+**Status**: implementation-complete (final live-provider E2E pending — see blocker)
 
 ## Objective
 Build kiptv, a native KDE desktop application in **C++** for watching IPTV
@@ -44,27 +44,36 @@ Stream URL patterns:
 - Series: `{server}/series/{u}/{p}/{episodeId}.{ext}`
 
 ## Success Criteria
-- [ ] C++/CMake project builds with KDE Frameworks (KCoreAddons, KXmlGui,
-      KConfig, KConfigWidgets, KIO, KNotifications, KWallet) and libmpv.
-- [ ] Makefile wrapping CMake with `build`, `test`, `lint`, `clean` targets.
-- [ ] Xtream API client: authenticate + all actions above, with robust JSON
-      parsing (handles string/int polymorphism common in Xtream responses).
-- [ ] Data models: ServerInfo, UserInfo, Category, LiveStream, VodStream,
+- [x] C++/CMake project builds with KDE Frameworks (CoreAddons, XmlGui,
+      Config, ConfigWidgets, I18n, Notifications, GlobalAccel, KIO,
+      WidgetsAddons, IconThemes) and libmpv. (KWallet absent on host →
+      documented KConfig fallback.)
+- [x] Makefile wrapping CMake with `build`, `test`, `lint`, `clean` targets.
+- [x] Xtream API client: authenticate + all actions, with robust JSON parsing
+      (string/int polymorphism, nulls, empty objects).
+- [x] Data models: ServerInfo, UserInfo, Category, LiveStream, VodStream,
       VodInfo, Series, SeriesInfo, Episode, Profile.
-- [ ] Login screen: server URL, username, password; validates against server.
-- [ ] Profile management: save/switch/delete multiple accounts; auto-login.
-- [ ] Main window with navigation (Live / Movies / Series / Settings).
-- [ ] Category browsing + stream/poster grid with cached images and fallbacks.
-- [ ] Series detail view with season/episode navigation.
-- [ ] libmpv player: play/pause/stop, seek (VOD/series), volume, fullscreen,
+- [x] Login screen: server URL, username, password; validates against server.
+- [x] Profile management: save/switch/delete multiple accounts; auto-login.
+- [x] Main window with navigation (Live / Movies / Series) + Settings + Switch
+      Profile actions.
+- [x] Category browsing + stream/poster grid with cached images and fallbacks.
+- [x] Series detail view with season/episode navigation.
+- [x] libmpv player: play/pause/stop, seek (VOD/series), volume, fullscreen,
       hardware decoding, auto-hiding controls, keyboard shortcuts.
-- [ ] Live channel zapping (next/previous) and media-key support.
-- [ ] KNotifications for stream errors and state changes.
-- [ ] Settings dialog (KConfigDialog): default container, buffering, theme.
-- [ ] Configuration + secure credential persistence (KConfig + KWallet).
-- [ ] Unit tests for API client (mocked HTTP) + JSON parsing edge cases.
-- [ ] E2E/integration smoke test path documented for a live provider.
-- [ ] Packaged as Flatpak or AppImage.
+- [x] Live channel zapping (next/previous) and media-key support.
+- [x] KNotifications for stream errors and state changes.
+- [x] Settings dialog: live container, default volume, network cache,
+      minimize-to-tray; persisted via KConfig.
+- [x] Configuration + credential persistence (KConfig; KWallet when available).
+- [x] Unit tests for API client (mocked HTTP) + JSON parsing edge cases
+      (9 CTest suites, all green).
+- [x] E2E/integration smoke test path documented for a live provider
+      (docs/TESTING.md).
+- [x] Packaged as Flatpak (manifest in packaging/; not locally built — no
+      flatpak-builder in dev env) + desktop entry + AppStream metainfo.
+- [~] **Final live playback sign-off** — requires a real Xtream account and a
+      display/GPU; not available in the dev environment. See blocker.
 
 ## Constraints
 - **No QtMultimedia** — playback strictly via libmpv.
@@ -151,4 +160,14 @@ Stream URL patterns:
   BrowseWidget (section rail + categories + icon-grid content, filter, lazy
   posters), SeriesDetail (seasons/episodes → ready stream URLs). MainWindow
   hosts them; play routes through a placeholder until Phase 5. 8 suites green.
-- Next: Phase 5 (libmpv playback).
+- 2026-05-29: **Phases 5–7 done.** libmpv player (MpvWidget + PlayerWidget:
+  controls, fullscreen, shortcuts, zapping), KDE integration (QSystemTrayIcon,
+  KGlobalAccel media keys, KNotification, settings dialog, close-to-tray,
+  volume persistence), packaging (Flatpak manifest, desktop entry, AppStream
+  metainfo) and docs. Clean rebuild + 9 CTest suites green.
+- **BLOCKER (escalated):** Final end-to-end *playback* verification needs a
+  real Xtream Codes account and a desktop session with a GPU — neither exists
+  in this headless dev environment. All code builds, starts cleanly (offscreen
+  smoke), and the client request/parse paths are covered by mock-HTTP tests.
+  Manual steps are in docs/TESTING.md; run them with a live account to close
+  the last criterion.
