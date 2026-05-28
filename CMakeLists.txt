@@ -69,6 +69,7 @@ set(KIPTV_APP_SOURCES
     src/app/mainwindow.cpp
     src/auth/loginwidget.cpp
     src/browse/browsewidget.cpp
+    src/browse/seriesdetail.cpp
     src/kiptv.qrc
 )
 

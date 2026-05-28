@@ -3,6 +3,7 @@
 #include "api/xtreamclient.h"
 #include "auth/loginwidget.h"
 #include "browse/browsewidget.h"
+#include "browse/seriesdetail.h"
 #include "core/imageloader.h"
 #include "models/serverinfo.h"
 
@@ -24,9 +25,11 @@ MainWindow::MainWindow(QWidget *parent)
     m_stack = new QStackedWidget(this);
     m_login = new LoginWidget(this);
     m_browse = new BrowseWidget(m_client, m_images, this);
+    m_seriesDetail = new SeriesDetail(m_client, m_images, this);
 
-    m_stack->addWidget(m_login);  // index 0
-    m_stack->addWidget(m_browse); // index 1
+    m_stack->addWidget(m_login);        // index 0
+    m_stack->addWidget(m_browse);       // index 1
+    m_stack->addWidget(m_seriesDetail); // index 2
     setCentralWidget(m_stack);
 
     connect(m_login, &LoginWidget::loginRequested, this, &MainWindow::onLoginRequested);
@@ -34,6 +37,10 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_client, &XtreamClient::errorOccurred, this, &MainWindow::onError);
     connect(m_browse, &BrowseWidget::playRequested, this, &MainWindow::onPlayRequested);
     connect(m_browse, &BrowseWidget::openSeriesRequested, this, &MainWindow::onOpenSeries);
+    connect(m_seriesDetail, &SeriesDetail::playEpisode, this, &MainWindow::onPlayRequested);
+    connect(m_seriesDetail, &SeriesDetail::backRequested, this, [this] {
+        m_stack->setCurrentWidget(m_browse);
+    });
 
     setupActions();
     setupGUI(Default, QStringLiteral("kiptvui.rc"));
@@ -102,10 +109,8 @@ void MainWindow::onPlayRequested(const QString &url, const QString &title)
 
 void MainWindow::onOpenSeries(const QString &seriesId, const QString &name)
 {
-    Q_UNUSED(seriesId)
-    // Phase 4 series detail view is wired in a follow-up step.
-    KMessageBox::information(this, i18n("Series detail for <b>%1</b> arrives next.", name),
-                             i18nc("@title:window", "Series"));
+    m_seriesDetail->open(seriesId, name);
+    m_stack->setCurrentWidget(m_seriesDetail);
 }
 
 void MainWindow::onError(const QString &message)

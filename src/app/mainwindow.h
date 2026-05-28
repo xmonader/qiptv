@@ -11,6 +11,7 @@ namespace kiptv {
 
 class LoginWidget;
 class BrowseWidget;
+class SeriesDetail;
 class XtreamClient;
 class ImageLoader;
 struct ServerInfo;
@@ -42,6 +43,7 @@ private:
     QStackedWidget *m_stack = nullptr;
     LoginWidget *m_login = nullptr;
     BrowseWidget *m_browse = nullptr;
+    SeriesDetail *m_seriesDetail = nullptr;
     XtreamClient *m_client = nullptr;
     ImageLoader *m_images = nullptr;
     ProfileStore m_store;
