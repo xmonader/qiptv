@@ -25,6 +25,11 @@ add_executable(test_profilestore test_profilestore.cpp)
 target_link_libraries(test_profilestore PRIVATE kiptv_core Qt6::Test)
 add_test(NAME profilestore COMMAND test_profilestore)
 
+add_executable(test_imageloader test_imageloader.cpp)
+target_link_libraries(test_imageloader PRIVATE kiptv_core Qt6::Test Qt6::Network Qt6::Gui)
+add_test(NAME imageloader COMMAND test_imageloader)
+set_tests_properties(imageloader PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+
 # GUI test: compiles the widget directly and runs under the offscreen platform.
 add_executable(test_loginwidget test_loginwidget.cpp ${CMAKE_SOURCE_DIR}/src/auth/loginwidget.cpp)
 target_link_libraries(test_loginwidget PRIVATE kiptv_core Qt6::Test Qt6::Widgets KF6::I18n)
