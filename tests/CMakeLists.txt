@@ -16,3 +16,7 @@ add_test(NAME models COMMAND test_models)
 add_executable(test_urlbuilder test_urlbuilder.cpp)
 target_link_libraries(test_urlbuilder PRIVATE kiptv_core Qt6::Test)
 add_test(NAME urlbuilder COMMAND test_urlbuilder)
+
+add_executable(test_xtreamclient test_xtreamclient.cpp)
+target_link_libraries(test_xtreamclient PRIVATE kiptv_core Qt6::Test Qt6::Network)
+add_test(NAME xtreamclient COMMAND test_xtreamclient)

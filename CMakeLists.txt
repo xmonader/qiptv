@@ -44,6 +44,7 @@ enable_testing()
 set(KIPTV_CORE_SOURCES
     src/core/parse.cpp
     src/api/urlbuilder.cpp
+    src/api/xtreamclient.cpp
     src/models/category.cpp
     src/models/serverinfo.cpp
     src/models/livestream.cpp
@@ -56,6 +57,7 @@ target_include_directories(kiptv_core PUBLIC ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(kiptv_core PUBLIC
     Qt6::Core
     Qt6::Network
+    KF6::I18n
 )
 
 set(KIPTV_APP_SOURCES
