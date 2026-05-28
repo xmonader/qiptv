@@ -23,6 +23,7 @@ int main(int argc, char *argv[])
         i18n("(c) 2026"));
     about.addAuthor(i18n("xmonader"), QString(), QStringLiteral("xmonader@gmail.com"));
     about.setHomepage(QStringLiteral("https://github.com/xmonader/kiptv"));
+    about.setDesktopFileName(QStringLiteral("io.github.xmonader.kiptv"));
     KAboutData::setApplicationData(about);
 
     QCommandLineParser parser;

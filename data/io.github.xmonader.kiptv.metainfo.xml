@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.xmonader.kiptv</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MIT</project_license>
+  <name>kiptv</name>
+  <summary>Native KDE IPTV client for Xtream Codes providers</summary>
+  <description>
+    <p>
+      kiptv is a native KDE desktop application for watching IPTV content
+      delivered through the Xtream Codes API. Log in with your provider's
+      server URL and credentials to browse Live TV, Movies and Series, with
+      libmpv-powered playback and hardware decoding.
+    </p>
+    <p>Features:</p>
+    <ul>
+      <li>Live TV, Movies (VOD) and Series browsing by category</li>
+      <li>Multiple saved provider profiles with auto-login</li>
+      <li>libmpv playback with seeking, volume and fullscreen</li>
+      <li>Channel zapping, media-key control and system-tray integration</li>
+    </ul>
+  </description>
+  <launchable type="desktop-id">io.github.xmonader.kiptv.desktop</launchable>
+  <url type="homepage">https://github.com/xmonader/kiptv</url>
+  <url type="bugtracker">https://github.com/xmonader/kiptv/issues</url>
+  <developer id="io.github.xmonader">
+    <name>xmonader</name>
+  </developer>
+  <provides>
+    <binary>kiptv</binary>
+  </provides>
+  <content_rating type="oars-1.1"/>
+  <releases>
+    <release version="0.1.0" date="2026-05-29">
+      <description>
+        <p>Initial release: Xtream Codes browsing and libmpv playback.</p>
+      </description>
+    </release>
+  </releases>
+</component>
