@@ -1,1 +1,18 @@
-/target
+# Build
+/build/
+/target/
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+
+# Editor / tooling
+.qwen/
+.idea/
+*.user
+compile_commands.json
+
+# Secrets — never commit real provider accounts
+*.local
+secrets.*
