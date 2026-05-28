@@ -266,7 +266,7 @@ void BrowseWidget::onContentActivated(QListWidgetItem *item)
     switch (kind) {
     case Live: {
         const int id = item->data(IdRole).toInt();
-        Q_EMIT playRequested(m_client->urls().liveUrl(id), item->text());
+        Q_EMIT playRequested(m_client->urls().liveUrl(id, m_liveContainer), item->text());
         break;
     }
     case Movies: {

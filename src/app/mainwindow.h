@@ -2,6 +2,7 @@
 
 #include "config/profile.h"
 #include "config/profilestore.h"
+#include "config/settings.h"
 
 #include <KXmlGuiWindow>
 
@@ -31,11 +32,16 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow() override;
 
+protected:
+    void closeEvent(QCloseEvent *event) override;
+
 private:
     void setupActions();
     void setupSystemTray();
     void setupGlobalShortcuts();
     void notify(const QString &eventId, const QString &title, const QString &text);
+    void openSettings();
+    void applySettings();
     void tryAutoLogin();
 
     void onLoginRequested(const Profile &profile);
@@ -55,7 +61,9 @@ private:
     XtreamClient *m_client = nullptr;
     ImageLoader *m_images = nullptr;
     ProfileStore m_store;
-    Profile m_pending; ///< profile awaiting save once auth succeeds
+    Settings m_settings;
+    Profile m_pending;        ///< profile awaiting save once auth succeeds
+    bool m_forceQuit = false; ///< set by the tray Quit action to bypass close-to-tray
 };
 
 } // namespace kiptv

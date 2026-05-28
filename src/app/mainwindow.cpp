@@ -1,6 +1,7 @@
 #include "app/mainwindow.h"
 
 #include "api/xtreamclient.h"
+#include "app/settingsdialog.h"
 #include "auth/loginwidget.h"
 #include "browse/browsewidget.h"
 #include "browse/seriesdetail.h"
@@ -17,6 +18,7 @@
 
 #include <QAction>
 #include <QApplication>
+#include <QCloseEvent>
 #include <QMenu>
 #include <QStackedWidget>
 #include <QSystemTrayIcon>
@@ -68,6 +70,7 @@ MainWindow::MainWindow(QWidget *parent)
     setupGUI(Default, QStringLiteral("kiptvui.rc"));
     setupSystemTray();
     setupGlobalShortcuts();
+    applySettings();
 
     m_login->setProfiles(m_store.profiles(), m_store.lastUsedId());
     tryAutoLogin();
@@ -77,12 +80,41 @@ MainWindow::~MainWindow() = default;
 
 void MainWindow::setupActions()
 {
-    KStandardAction::quit(this, &QWidget::close, actionCollection());
+    KStandardAction::quit(this, [this] {
+        m_forceQuit = true;
+        close();
+    }, actionCollection());
 
     auto *logout = actionCollection()->addAction(QStringLiteral("logout"));
     logout->setText(i18n("Switch Profile…"));
     logout->setIcon(QIcon::fromTheme(QStringLiteral("system-switch-user")));
     connect(logout, &QAction::triggered, this, &MainWindow::showLogin);
+
+    KStandardAction::preferences(this, &MainWindow::openSettings, actionCollection());
+}
+
+void MainWindow::openSettings()
+{
+    SettingsDialog dialog(m_settings, this);
+    if (dialog.exec() == QDialog::Accepted) {
+        applySettings();
+    }
+}
+
+void MainWindow::applySettings()
+{
+    m_browse->setLiveContainer(m_settings.liveContainer());
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    // Minimize to tray instead of quitting, unless the user explicitly quit.
+    if (!m_forceQuit && m_tray && m_settings.minimizeToTray() && m_tray->isVisible()) {
+        hide();
+        event->ignore();
+        return;
+    }
+    KXmlGuiWindow::closeEvent(event);
 }
 
 void MainWindow::setupSystemTray()
@@ -108,7 +140,10 @@ void MainWindow::setupSystemTray()
     connect(playpause, &QAction::triggered, m_player, &PlayerWidget::togglePause);
     menu->addSeparator();
     auto *quit = menu->addAction(QIcon::fromTheme(QStringLiteral("application-exit")), i18n("Quit"));
-    connect(quit, &QAction::triggered, qApp, &QApplication::quit);
+    connect(quit, &QAction::triggered, this, [this] {
+        m_forceQuit = true;
+        qApp->quit();
+    });
 
     m_tray->setContextMenu(menu);
     connect(m_tray, &QSystemTrayIcon::activated, this, [this](QSystemTrayIcon::ActivationReason r) {

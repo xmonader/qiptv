@@ -37,6 +37,9 @@ public:
     /// No-op outside the Live section or when the list is empty.
     void zap(int delta);
 
+    /// Stream container/extension used when building live channel URLs.
+    void setLiveContainer(const QString &ext) { m_liveContainer = ext; }
+
 Q_SIGNALS:
     void playRequested(const QString &url, const QString &title);
     void openSeriesRequested(const QString &seriesId, const QString &name);
@@ -65,6 +68,7 @@ private:
 
     QHash<int, QVector<Category>> m_catCache; // section -> categories
     int m_currentRow = -1;                    // last activated content row
+    QString m_liveContainer = QStringLiteral("ts");
 };
 
 } // namespace kiptv

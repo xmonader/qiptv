@@ -69,6 +69,7 @@ target_link_libraries(kiptv_core PUBLIC
 set(KIPTV_APP_SOURCES
     src/main.cpp
     src/app/mainwindow.cpp
+    src/app/settingsdialog.cpp
     src/auth/loginwidget.cpp
     src/browse/browsewidget.cpp
     src/browse/seriesdetail.cpp
