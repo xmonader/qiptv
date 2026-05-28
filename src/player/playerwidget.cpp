@@ -120,6 +120,7 @@ PlayerWidget::PlayerWidget(QWidget *parent)
     connect(m_stop, &QToolButton::clicked, this, &PlayerWidget::stop);
     connect(m_fullscreen, &QToolButton::clicked, this, &PlayerWidget::toggleFullscreen);
     connect(m_volume, &QSlider::valueChanged, m_mpv, &MpvWidget::setVolume);
+    connect(m_volume, &QSlider::valueChanged, this, &PlayerWidget::volumeChanged);
 
     connect(m_position, &QSlider::sliderPressed, this, [this] { m_userSeeking = true; });
     connect(m_position, &QSlider::sliderReleased, this, [this] {
@@ -154,6 +155,11 @@ void PlayerWidget::stop()
 void PlayerWidget::togglePause()
 {
     m_mpv->togglePause();
+}
+
+void PlayerWidget::setInitialVolume(int percent)
+{
+    m_volume->setValue(qBound(0, percent, 150));
 }
 
 void PlayerWidget::onPositionChanged(double seconds)

@@ -60,6 +60,8 @@ MainWindow::MainWindow(QWidget *parent)
     });
     connect(m_player, &PlayerWidget::nextRequested, m_browse, [this] { m_browse->zap(1); });
     connect(m_player, &PlayerWidget::previousRequested, m_browse, [this] { m_browse->zap(-1); });
+    connect(m_player, &PlayerWidget::volumeChanged, this,
+            [this](int v) { m_settings.setLastVolume(v); });
     // Playback errors are informational; they must not bounce to the login page.
     connect(m_player, &PlayerWidget::errorOccurred, this, [this](const QString &msg) {
         notify(QStringLiteral("playbackError"), i18n("Playback error"), msg);
@@ -104,6 +106,7 @@ void MainWindow::openSettings()
 void MainWindow::applySettings()
 {
     m_browse->setLiveContainer(m_settings.liveContainer());
+    m_player->setInitialVolume(m_settings.lastVolume());
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -114,6 +117,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
         event->ignore();
         return;
     }
+    m_settings.save(); // persist last volume and any pending prefs
     KXmlGuiWindow::closeEvent(event);
 }
 

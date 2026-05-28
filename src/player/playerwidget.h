@@ -23,13 +23,15 @@ public:
 
     void play(const QString &url, const QString &title);
     void stop();
-    void togglePause(); ///< exposed for global media keys / tray
+    void togglePause();        ///< exposed for global media keys / tray
+    void setInitialVolume(int percent);
 
 Q_SIGNALS:
     void backRequested();
     void errorOccurred(const QString &message);
     void previousRequested();
     void nextRequested();
+    void volumeChanged(int percent);
 
 protected:
     void keyPressEvent(QKeyEvent *event) override;
