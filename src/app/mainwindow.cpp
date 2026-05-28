@@ -54,13 +54,6 @@ MainWindow::MainWindow(QWidget *parent)
         m_stack->setCurrentWidget(m_browse);
     });
 
-    // Create the player page now, before the window is shown. It must be added
-    // to the stack up front: a QOpenGLWidget added to an already-realized
-    // top-level pops out as its own separate window. It costs nothing until
-    // shown — QOpenGLWidget defers all GL/mpv-render setup to first paint, and
-    // the page stays hidden behind the login until something plays.
-    ensurePlayer();
-
     setupActions();
     setupGUI(Default, QStringLiteral("kiptvui.rc"));
     setupSystemTray();
@@ -109,17 +102,27 @@ PlayerWidget *MainWindow::ensurePlayer()
     if (m_player) {
         return m_player;
     }
+    // The player is a dedicated top-level window, NOT a page in the stacked
+    // widget: a QOpenGLWidget inside a QStackedWidget gets split into a
+    // separate OS window from its sibling controls on some compositors. As a
+    // standalone window (video + controls together, the mpv-example layout)
+    // it composites correctly. Qt::Window child of the main window so it does
+    // not count as an independent app window for quit purposes.
     m_player = new PlayerWidget(this);
-    m_stack->addWidget(m_player);
+    m_player->setWindowFlag(Qt::Window);
+    m_player->setWindowTitle(i18nc("@title:window", "kiptv — Player"));
+    m_player->resize(960, 540);
 
     connect(m_player, &PlayerWidget::backRequested, this, [this] {
-        m_stack->setCurrentWidget(m_lastBrowsePage ? m_lastBrowsePage : m_browse);
+        m_player->hide();
+        raise();
+        activateWindow();
     });
     connect(m_player, &PlayerWidget::nextRequested, m_browse, [this] { m_browse->zap(1); });
     connect(m_player, &PlayerWidget::previousRequested, m_browse, [this] { m_browse->zap(-1); });
     connect(m_player, &PlayerWidget::volumeChanged, this,
             [this](int v) { m_settings.setLastVolume(v); });
-    // Playback errors are informational; they must not bounce to the login page.
+    // Playback errors are informational; just report them.
     connect(m_player, &PlayerWidget::errorOccurred, this, [this](const QString &msg) {
         notify(QStringLiteral("playbackError"), i18n("Playback error"), msg);
         KMessageBox::error(this, msg, i18nc("@title:window", "Playback"));
@@ -264,12 +267,10 @@ void MainWindow::onPlayRequested(const QString &url, const QString &title)
     // returns to the right place. When zapping (already on the player), keep
     // the remembered page.
     PlayerWidget *player = ensurePlayer();
-    QWidget *cur = m_stack->currentWidget();
-    if (cur == m_browse || cur == m_seriesDetail) {
-        m_lastBrowsePage = cur;
-    }
     player->play(url, title);
-    m_stack->setCurrentWidget(player);
+    player->show();
+    player->raise();
+    player->activateWindow();
     notify(QStringLiteral("nowPlaying"), i18n("Now playing"), title);
     if (m_tray) {
         m_tray->setToolTip(i18n("kiptv — %1", title));

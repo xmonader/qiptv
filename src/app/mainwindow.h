@@ -57,7 +57,6 @@ private:
     BrowseWidget *m_browse = nullptr;
     SeriesDetail *m_seriesDetail = nullptr;
     PlayerWidget *m_player = nullptr;
-    QWidget *m_lastBrowsePage = nullptr; ///< page to return to after playback
     QSystemTrayIcon *m_tray = nullptr;
     XtreamClient *m_client = nullptr;
     ImageLoader *m_images = nullptr;

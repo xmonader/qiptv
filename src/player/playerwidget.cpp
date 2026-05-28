@@ -4,6 +4,7 @@
 
 #include <KLocalizedString>
 
+#include <QCloseEvent>
 #include <QHBoxLayout>
 #include <QKeyEvent>
 #include <QLabel>
@@ -248,6 +249,17 @@ void PlayerWidget::mouseMoveEvent(QMouseEvent *event)
 {
     nudgeControls();
     QWidget::mouseMoveEvent(event);
+}
+
+void PlayerWidget::closeEvent(QCloseEvent *event)
+{
+    // The player is its own top-level window; closing it must return to the
+    // browser, not quit the application. Hide and stop instead of destroying.
+    stop();
+    leaveFullscreen();
+    hide();
+    event->ignore();
+    Q_EMIT backRequested();
 }
 
 bool PlayerWidget::eventFilter(QObject *watched, QEvent *event)
