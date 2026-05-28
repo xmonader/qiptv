@@ -40,32 +40,55 @@ void ImageLoader::load(const QString &url)
         return;
     }
     if (m_inFlight.contains(url)) {
-        return; // a request is already running; its result will be cached/emitted
+        return; // already requested or queued; its result will be emitted
     }
     m_inFlight.insert(url);
+
+    if (m_active < m_maxConcurrent) {
+        startRequest(url);
+    } else {
+        m_queue.enqueue(url);
+    }
+}
+
+void ImageLoader::startRequest(const QString &url)
+{
+    ++m_active;
 
     QNetworkRequest req((QUrl(url)));
     req.setTransferTimeout(m_timeoutMs);
     req.setAttribute(QNetworkRequest::RedirectPolicyAttribute,
                      QNetworkRequest::NoLessSafeRedirectPolicy);
+    // These provider CDNs handle many multiplexed HTTP/2 streams badly; force
+    // HTTP/1.1 so the concurrency cap actually governs the connection count.
+    req.setAttribute(QNetworkRequest::Http2AllowedAttribute, false);
 
     QNetworkReply *reply = m_nam->get(req);
     connect(reply, &QNetworkReply::finished, this, [this, reply, url]() {
         reply->deleteLater();
         m_inFlight.remove(url);
+        --m_active;
 
-        if (reply->error() != QNetworkReply::NoError) {
+        if (reply->error() == QNetworkReply::NoError) {
+            QImage image;
+            if (image.loadFromData(reply->readAll())) {
+                cacheInsert(url, image);
+                Q_EMIT loaded(url, image);
+            } else {
+                Q_EMIT failed(url);
+            }
+        } else {
             Q_EMIT failed(url);
-            return;
         }
-        QImage image;
-        if (!image.loadFromData(reply->readAll())) {
-            Q_EMIT failed(url);
-            return;
-        }
-        cacheInsert(url, image);
-        Q_EMIT loaded(url, image);
+        pumpQueue();
     });
+}
+
+void ImageLoader::pumpQueue()
+{
+    while (m_active < m_maxConcurrent && !m_queue.isEmpty()) {
+        startRequest(m_queue.dequeue());
+    }
 }
 
 } // namespace kiptv

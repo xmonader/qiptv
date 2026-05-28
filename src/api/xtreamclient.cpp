@@ -54,6 +54,8 @@ void XtreamClient::get(const QUrl &url, Handler onSuccess)
     req.setTransferTimeout(m_timeoutMs);
     req.setAttribute(QNetworkRequest::RedirectPolicyAttribute,
                      QNetworkRequest::NoLessSafeRedirectPolicy);
+    // Xtream servers commonly mishandle HTTP/2; stick to HTTP/1.1.
+    req.setAttribute(QNetworkRequest::Http2AllowedAttribute, false);
 
     QNetworkReply *reply = m_nam->get(req);
     connect(reply, &QNetworkReply::finished, this, [this, reply, onSuccess]() {

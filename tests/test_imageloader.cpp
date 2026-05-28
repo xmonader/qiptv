@@ -100,6 +100,27 @@ private Q_SLOTS:
         QTRY_COMPARE_WITH_TIMEOUT(failedUrl, QString(), 1000);
     }
 
+    void queueDrainsBeyondConcurrencyCap()
+    {
+        ImageServer server;
+        server.body = makePng();
+        QVERIFY(server.start());
+
+        QNetworkAccessManager nam;
+        ImageLoader loader(&nam);
+        loader.setMaxConcurrent(2);
+
+        int loadedCount = 0;
+        connect(&loader, &ImageLoader::loaded, [&](const QString &, const QImage &) { ++loadedCount; });
+
+        // 6 distinct URLs with a cap of 2 — all must still complete.
+        for (int i = 0; i < 6; ++i) {
+            loader.load(server.url() + QStringLiteral("?i=%1").arg(i));
+        }
+        QTRY_VERIFY_WITH_TIMEOUT(loadedCount == 6, 4000);
+        QCOMPARE(server.requestCount, 6);
+    }
+
     void nonImageDataFails()
     {
         ImageServer server;
