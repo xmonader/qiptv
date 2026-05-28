@@ -143,4 +143,12 @@ Stream URL patterns:
   client-via-mock-HTTP). KF6Wallet absent on host → credentials will use
   KConfig fallback. Note: this moc mis-lexes `//` inside raw-string
   literals — keep test fixture URLs scheme-less.
-- Next: Phase 3 (auth + profiles).
+- 2026-05-29: **Phase 3 done.** Profile model + KConfig ProfileStore
+  (obfuscated passwords, KWallet fallback), LoginWidget, MainWindow auth
+  orchestration with auto-login and Switch Profile. 7 test suites green
+  (added profilestore + offscreen loginwidget).
+- 2026-05-29: **Phase 4 done.** ImageLoader (cached/dedup, tested),
+  BrowseWidget (section rail + categories + icon-grid content, filter, lazy
+  posters), SeriesDetail (seasons/episodes → ready stream URLs). MainWindow
+  hosts them; play routes through a placeholder until Phase 5. 8 suites green.
+- Next: Phase 5 (libmpv playback).
