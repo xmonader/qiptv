@@ -51,11 +51,7 @@ impl Player {
     }
 
     pub fn volume(&self) -> f64 {
-        if let Some(playbin) = self.pipeline.children().into_iter().next() {
-            playbin.property::<f64>("volume").unwrap_or(1.0)
-        } else {
-            1.0
-        }
+        1.0 // TODO: Get actual volume from playbin
     }
 }
 

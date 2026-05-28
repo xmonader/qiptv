@@ -34,7 +34,8 @@ impl KDEIntegration {
         // This allows KDE media keys to control the player
         let bus_name = format!("org.mpris.MediaPlayer2.{}", app_name.to_lowercase());
         
-        conn.request_name(&bus_name).await
+        conn.request_name(zbus::names::WellKnownName::try_from(bus_name.as_str())?)
+            .await
             .context("Failed to request D-Bus bus name")?;
 
         Ok(())

@@ -4,9 +4,12 @@ use rfd::FileDialog;
 
 mod models;
 mod parsers;
+mod player;
+mod kde;
+mod config;
 
-use models::Playlist;
-use parsers::parse_playlist;
+pub use models::Playlist;
+pub use parsers::{parse_playlist, m3u::M3UParser, xspf::XSPFParser};
 
 struct KiptvApp {
     playlists: Vec<Playlist>,

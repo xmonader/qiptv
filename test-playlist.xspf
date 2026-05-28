@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<playlist xmlns="http://xspf.org/ns/0/">
+    <trackList>
+        <track>
+            <location>http://stream.example.com/xspf1</location>
+            <title>XSPF Channel 1</title>
+            <album>Test</album>
+        </track>
+        <track>
+            <location>http://stream.example.com/xspf2</location>
+            <title>XSPF Channel 2</title>
+            <album>Test</album>
+        </track>
+    </trackList>
+</playlist>
