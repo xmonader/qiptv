@@ -6,12 +6,13 @@
 #include <KXmlGuiWindow>
 
 class QStackedWidget;
-class QLabel;
 
 namespace kiptv {
 
 class LoginWidget;
+class BrowseWidget;
 class XtreamClient;
+class ImageLoader;
 struct ServerInfo;
 
 /**
@@ -34,12 +35,15 @@ private:
     void onLoginRequested(const Profile &profile);
     void onAuthenticated(const ServerInfo &info);
     void onError(const QString &message);
+    void onPlayRequested(const QString &url, const QString &title);
+    void onOpenSeries(const QString &seriesId, const QString &name);
     void showLogin();
 
     QStackedWidget *m_stack = nullptr;
     LoginWidget *m_login = nullptr;
-    QLabel *m_connected = nullptr;
+    BrowseWidget *m_browse = nullptr;
     XtreamClient *m_client = nullptr;
+    ImageLoader *m_images = nullptr;
     ProfileStore m_store;
     Profile m_pending; ///< profile awaiting save once auth succeeds
 };
