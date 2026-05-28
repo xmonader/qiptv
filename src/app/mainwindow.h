@@ -42,7 +42,7 @@ private:
     void notify(const QString &eventId, const QString &title, const QString &text);
     void openSettings();
     void applySettings();
-    PlayerWidget *ensurePlayer(); ///< lazily create + wire the player on first use
+    PlayerWidget *ensurePlayer(); ///< create + wire the player once (idempotent)
     void tryAutoLogin();
 
     void onLoginRequested(const Profile &profile);

@@ -39,10 +39,6 @@ MainWindow::MainWindow(QWidget *parent)
     m_browse = new BrowseWidget(m_client, m_images, this);
     m_seriesDetail = new SeriesDetail(m_client, m_images, this);
 
-    // The player (and its libmpv-backed native window) is created lazily on
-    // first playback — see ensurePlayer(). Constructing it eagerly here put a
-    // native GPU video subwindow under the login form, which interferes with
-    // input/focus on some compositors and is pure waste before anything plays.
     m_stack->addWidget(m_login);        // index 0
     m_stack->addWidget(m_browse);       // index 1
     m_stack->addWidget(m_seriesDetail); // index 2
@@ -57,6 +53,13 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_seriesDetail, &SeriesDetail::backRequested, this, [this] {
         m_stack->setCurrentWidget(m_browse);
     });
+
+    // Create the player page now, before the window is shown. It must be added
+    // to the stack up front: a QOpenGLWidget added to an already-realized
+    // top-level pops out as its own separate window. It costs nothing until
+    // shown — QOpenGLWidget defers all GL/mpv-render setup to first paint, and
+    // the page stays hidden behind the login until something plays.
+    ensurePlayer();
 
     setupActions();
     setupGUI(Default, QStringLiteral("kiptvui.rc"));
