@@ -5,6 +5,7 @@
 #include "browse/browsewidget.h"
 #include "browse/seriesdetail.h"
 #include "core/imageloader.h"
+#include "player/playerwidget.h"
 #include "models/serverinfo.h"
 
 #include <KActionCollection>
@@ -26,10 +27,12 @@ MainWindow::MainWindow(QWidget *parent)
     m_login = new LoginWidget(this);
     m_browse = new BrowseWidget(m_client, m_images, this);
     m_seriesDetail = new SeriesDetail(m_client, m_images, this);
+    m_player = new PlayerWidget(this);
 
     m_stack->addWidget(m_login);        // index 0
     m_stack->addWidget(m_browse);       // index 1
     m_stack->addWidget(m_seriesDetail); // index 2
+    m_stack->addWidget(m_player);       // index 3
     setCentralWidget(m_stack);
 
     connect(m_login, &LoginWidget::loginRequested, this, &MainWindow::onLoginRequested);
@@ -40,6 +43,13 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_seriesDetail, &SeriesDetail::playEpisode, this, &MainWindow::onPlayRequested);
     connect(m_seriesDetail, &SeriesDetail::backRequested, this, [this] {
         m_stack->setCurrentWidget(m_browse);
+    });
+    connect(m_player, &PlayerWidget::backRequested, this, [this] {
+        m_stack->setCurrentWidget(m_lastBrowsePage ? m_lastBrowsePage : m_browse);
+    });
+    // Playback errors are informational; they must not bounce to the login page.
+    connect(m_player, &PlayerWidget::errorOccurred, this, [this](const QString &msg) {
+        KMessageBox::error(this, msg, i18nc("@title:window", "Playback"));
     });
 
     setupActions();
@@ -100,11 +110,12 @@ void MainWindow::onAuthenticated(const ServerInfo &info)
 
 void MainWindow::onPlayRequested(const QString &url, const QString &title)
 {
-    // Phase 5 embeds libmpv. For now confirm the stream URL resolves correctly.
-    KMessageBox::information(this,
-                             i18n("Would play <b>%1</b>:\n%2\n\n(Player arrives in Phase 5.)",
-                                  title, url),
-                             i18nc("@title:window", "Play"));
+    // Remember whether we came from the browser or a series detail so Back
+    // returns to the right place.
+    m_lastBrowsePage = (m_stack->currentWidget() == m_seriesDetail) ? static_cast<QWidget *>(m_seriesDetail)
+                                                                    : static_cast<QWidget *>(m_browse);
+    m_player->play(url, title);
+    m_stack->setCurrentWidget(m_player);
 }
 
 void MainWindow::onOpenSeries(const QString &seriesId, const QString &name)
