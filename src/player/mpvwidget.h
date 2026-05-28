@@ -1,22 +1,22 @@
 #pragma once
 
-#include <QWidget>
+#include <QOpenGLWidget>
 
 struct mpv_handle;
+struct mpv_render_context;
 
 namespace kiptv {
 
 /**
- * A QWidget that embeds libmpv for video playback.
+ * A QOpenGLWidget that renders libmpv video through mpv's render API.
  *
- * Embedding uses mpv's "wid" option (mpv renders into this widget's native
- * window). This is simple and robust on X11/XWayland; a native Wayland setup
- * may fall back through XWayland. A GPU render-API path is a future upgrade.
- *
- * libmpv delivers events on its own thread; we marshal them to the GUI thread
- * via a queued signal before touching any Qt state.
+ * Unlike the older "wid" embedding, this is an ordinary Qt widget with no
+ * native child window: overlay/sibling controls stack correctly, input is
+ * delivered by Qt, and there is no compositor flicker. mpv draws into the
+ * widget's FBO from paintGL(); a render-update callback (delivered on mpv's
+ * thread) requests a repaint on the GUI thread.
  */
-class MpvWidget : public QWidget {
+class MpvWidget : public QOpenGLWidget {
     Q_OBJECT
 public:
     explicit MpvWidget(QWidget *parent = nullptr);
@@ -41,17 +41,21 @@ Q_SIGNALS:
     void playbackError(const QString &message);
 
 protected:
-    // mpv owns rendering into our native window; Qt must not paint over it.
-    QPaintEngine *paintEngine() const override { return nullptr; }
+    void initializeGL() override;
+    void paintGL() override;
 
 private Q_SLOTS:
     void onMpvEvents();
+    void doUpdate();
 
 private:
     void setProperty(const char *name, double value);
-    static void wakeup(void *ctx);
+    static void onWakeup(void *ctx);
+    static void onRenderUpdate(void *ctx);
+    static void *getProcAddress(void *ctx, const char *name);
 
     mpv_handle *m_mpv = nullptr;
+    mpv_render_context *m_renderCtx = nullptr;
     bool m_paused = false;
 };
 

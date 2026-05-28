@@ -1,7 +1,9 @@
 #include "player/mpvwidget.h"
 
 #include <mpv/client.h>
+#include <mpv/render_gl.h>
 
+#include <QOpenGLContext>
 #include <QtGlobal>
 
 #include <clocale>
@@ -9,24 +11,18 @@
 namespace kiptv {
 
 namespace {
-// Property reply ids for observe_property (also used to route events).
 constexpr quint64 kTimePos = 1;
 constexpr quint64 kDuration = 2;
 constexpr quint64 kPause = 3;
 } // namespace
 
 MpvWidget::MpvWidget(QWidget *parent)
-    : QWidget(parent)
+    : QOpenGLWidget(parent)
 {
-    // mpv renders into a native child window keyed off our winId().
-    setAttribute(Qt::WA_NativeWindow);
-    setAttribute(Qt::WA_DontCreateNativeAncestors);
-    setAttribute(Qt::WA_OpaquePaintEvent);
     setMinimumSize(320, 180);
 
-    // libmpv requires the C numeric locale; Qt/KDE set it to the user's locale
-    // (e.g. comma decimal separators), which mpv warns about and which breaks
-    // its number parsing. Reset it for this and any later mpv use.
+    // libmpv requires the C numeric locale; Qt/KDE set the user's locale
+    // (e.g. comma decimals), which mpv warns about and which breaks parsing.
     std::setlocale(LC_NUMERIC, "C");
 
     m_mpv = mpv_create();
@@ -34,18 +30,13 @@ MpvWidget::MpvWidget(QWidget *parent)
         return;
     }
 
-    // Hardware decoding where safe; keep the OSD off (we draw our own UI).
     mpv_set_option_string(m_mpv, "hwdec", "auto-safe");
-    mpv_set_option_string(m_mpv, "vo", "gpu");
     mpv_set_option_string(m_mpv, "osc", "no");
     mpv_set_option_string(m_mpv, "input-default-bindings", "no");
     mpv_set_option_string(m_mpv, "input-vo-keyboard", "no");
-    // Reasonable network resilience for live IPTV streams.
+    // Network resilience for live IPTV streams.
     mpv_set_option_string(m_mpv, "cache", "yes");
     mpv_set_option_string(m_mpv, "demuxer-max-bytes", "50MiB");
-
-    const auto wid = static_cast<qint64>(winId());
-    mpv_set_option(m_mpv, "wid", MPV_FORMAT_INT64, const_cast<qint64 *>(&wid));
 
     if (mpv_initialize(m_mpv) < 0) {
         mpv_destroy(m_mpv);
@@ -57,19 +48,89 @@ MpvWidget::MpvWidget(QWidget *parent)
     mpv_observe_property(m_mpv, kDuration, "duration", MPV_FORMAT_DOUBLE);
     mpv_observe_property(m_mpv, kPause, "pause", MPV_FORMAT_FLAG);
 
-    // wakeup() runs on mpv's thread; bounce to the GUI thread via a queued slot.
-    mpv_set_wakeup_callback(m_mpv, &MpvWidget::wakeup, this);
+    mpv_set_wakeup_callback(m_mpv, &MpvWidget::onWakeup, this);
 }
 
 MpvWidget::~MpvWidget()
 {
+    if (m_renderCtx) {
+        // The render context must be freed with the GL context current.
+        makeCurrent();
+        mpv_render_context_free(m_renderCtx);
+        m_renderCtx = nullptr;
+        doneCurrent();
+    }
     if (m_mpv) {
         mpv_terminate_destroy(m_mpv);
         m_mpv = nullptr;
     }
 }
 
-void MpvWidget::wakeup(void *ctx)
+void *MpvWidget::getProcAddress(void *ctx, const char *name)
+{
+    Q_UNUSED(ctx)
+    QOpenGLContext *glctx = QOpenGLContext::currentContext();
+    if (!glctx) {
+        return nullptr;
+    }
+    return reinterpret_cast<void *>(glctx->getProcAddress(name));
+}
+
+void MpvWidget::initializeGL()
+{
+    if (!m_mpv || m_renderCtx) {
+        return;
+    }
+    mpv_opengl_init_params glInit{&MpvWidget::getProcAddress, this};
+    int advanced = 1;
+    mpv_render_param params[]{
+        {MPV_RENDER_PARAM_API_TYPE, const_cast<char *>(MPV_RENDER_API_TYPE_OPENGL)},
+        {MPV_RENDER_PARAM_OPENGL_INIT_PARAMS, &glInit},
+        {MPV_RENDER_PARAM_ADVANCED_CONTROL, &advanced},
+        {MPV_RENDER_PARAM_INVALID, nullptr},
+    };
+    if (mpv_render_context_create(&m_renderCtx, m_mpv, params) < 0) {
+        m_renderCtx = nullptr;
+        Q_EMIT playbackError(QStringLiteral("Failed to create mpv render context."));
+        return;
+    }
+    mpv_render_context_set_update_callback(m_renderCtx, &MpvWidget::onRenderUpdate, this);
+}
+
+void MpvWidget::paintGL()
+{
+    if (!m_renderCtx) {
+        return;
+    }
+    const qreal dpr = devicePixelRatioF();
+    mpv_opengl_fbo fbo{static_cast<int>(defaultFramebufferObject()),
+                       static_cast<int>(width() * dpr),
+                       static_cast<int>(height() * dpr),
+                       0};
+    int flipY = 1;
+    mpv_render_param params[]{
+        {MPV_RENDER_PARAM_OPENGL_FBO, &fbo},
+        {MPV_RENDER_PARAM_FLIP_Y, &flipY},
+        {MPV_RENDER_PARAM_INVALID, nullptr},
+    };
+    mpv_render_context_render(m_renderCtx, params);
+}
+
+void MpvWidget::onRenderUpdate(void *ctx)
+{
+    // Called on mpv's render thread; bounce to the GUI thread.
+    auto *self = static_cast<MpvWidget *>(ctx);
+    QMetaObject::invokeMethod(self, "doUpdate", Qt::QueuedConnection);
+}
+
+void MpvWidget::doUpdate()
+{
+    if (m_renderCtx && (mpv_render_context_update(m_renderCtx) & MPV_RENDER_UPDATE_FRAME)) {
+        update();
+    }
+}
+
+void MpvWidget::onWakeup(void *ctx)
 {
     auto *self = static_cast<MpvWidget *>(ctx);
     QMetaObject::invokeMethod(self, "onMpvEvents", Qt::QueuedConnection);
@@ -146,7 +207,6 @@ void MpvWidget::onMpvEvents()
     if (!m_mpv) {
         return;
     }
-    // Drain all pending events without blocking.
     while (true) {
         mpv_event *event = mpv_wait_event(m_mpv, 0);
         if (event->event_id == MPV_EVENT_NONE) {

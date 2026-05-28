@@ -21,7 +21,7 @@ include(KDECMakeSettings)
 include(KDECompilerSettings NO_POLICY_SCOPE)
 include(FeatureSummary)
 
-find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets Network Test)
+find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets Network Test OpenGLWidgets)
 find_package(KF6 6.0 REQUIRED COMPONENTS
     CoreAddons
     XmlGui
@@ -82,6 +82,7 @@ add_executable(kiptv ${KIPTV_APP_SOURCES})
 target_link_libraries(kiptv PRIVATE
     kiptv_core
     Qt6::Widgets
+    Qt6::OpenGLWidgets
     KF6::CoreAddons
     KF6::XmlGui
     KF6::ConfigCore
