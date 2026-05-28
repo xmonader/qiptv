@@ -102,12 +102,12 @@ PlayerWidget *MainWindow::ensurePlayer()
     if (m_player) {
         return m_player;
     }
-    // The player is a dedicated top-level window, NOT a page in the stacked
-    // widget: a QOpenGLWidget inside a QStackedWidget gets split into a
-    // separate OS window from its sibling controls on some compositors. As a
-    // standalone window (video + controls together, the mpv-example layout)
-    // it composites correctly. Qt::Window child of the main window so it does
-    // not count as an independent app window for quit purposes.
+    // The player is a dedicated top-level window (Qt::Window child of the main
+    // window, so it does not count as an independent app for quit purposes).
+    // Video + controls live together inside it. The earlier "video appeared in
+    // its own OS window" bug was NOT a windowing issue: mpv reverts to a
+    // windowed VO when loadfile runs before the render context exists — fixed
+    // by vo=libmpv in MpvWidget plus show()-before-play() in onPlayRequested.
     m_player = new PlayerWidget(this);
     m_player->setWindowFlag(Qt::Window);
     m_player->setWindowTitle(i18nc("@title:window", "kiptv — Player"));
@@ -267,10 +267,13 @@ void MainWindow::onPlayRequested(const QString &url, const QString &title)
     // returns to the right place. When zapping (already on the player), keep
     // the remembered page.
     PlayerWidget *player = ensurePlayer();
-    player->play(url, title);
+    // Show BEFORE loading: loadfile triggers video init, which reverts to a
+    // windowed VO (a separate OS window) unless the render context already
+    // exists. Showing first runs initializeGL() -> mpv_render_context_create().
     player->show();
     player->raise();
     player->activateWindow();
+    player->play(url, title);
     notify(QStringLiteral("nowPlaying"), i18n("Now playing"), title);
     if (m_tray) {
         m_tray->setToolTip(i18n("kiptv — %1", title));

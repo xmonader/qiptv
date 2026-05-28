@@ -30,6 +30,11 @@ MpvWidget::MpvWidget(QWidget *parent)
         return;
     }
 
+    // Critical for render-API embedding: force the libmpv video output.
+    // Without it mpv defaults to vo=gpu and opens its OWN top-level window for
+    // the video (separate from our controls). With vo=libmpv, video appears
+    // only through mpv_render_context_render() into this widget's FBO.
+    mpv_set_option_string(m_mpv, "vo", "libmpv");
     mpv_set_option_string(m_mpv, "hwdec", "auto-safe");
     mpv_set_option_string(m_mpv, "osc", "no");
     mpv_set_option_string(m_mpv, "input-default-bindings", "no");
