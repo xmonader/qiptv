@@ -1,0 +1,15 @@
+[Global]
+IconName=video-television
+Comment=kiptv
+Name=kiptv
+
+[Event/nowPlaying]
+Name=Now Playing
+Comment=A new stream started playing
+Action=Popup
+
+[Event/playbackError]
+Name=Playback Error
+Comment=A stream failed to play
+Action=Popup|Sound
+Sound=dialog-error

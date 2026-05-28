@@ -23,6 +23,7 @@ public:
 
     void play(const QString &url, const QString &title);
     void stop();
+    void togglePause(); ///< exposed for global media keys / tray
 
 Q_SIGNALS:
     void backRequested();

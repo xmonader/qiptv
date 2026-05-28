@@ -29,6 +29,7 @@ find_package(KF6 6.0 REQUIRED COMPONENTS
     ConfigWidgets
     I18n
     Notifications
+    GlobalAccel
     KIO
     WidgetsAddons
     IconThemes
@@ -86,6 +87,7 @@ target_link_libraries(kiptv PRIVATE
     KF6::ConfigWidgets
     KF6::I18n
     KF6::Notifications
+    KF6::GlobalAccel
     KF6::KIOCore
     KF6::WidgetsAddons
     KF6::IconThemes
@@ -94,6 +96,7 @@ target_link_libraries(kiptv PRIVATE
 
 install(TARGETS kiptv ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})
 install(FILES src/kiptvui.rc DESTINATION ${KDE_INSTALL_KXMLGUIDIR}/kiptv)
+install(FILES src/kiptv.notifyrc DESTINATION ${KDE_INSTALL_KNOTIFYRCDIR})
 
 add_subdirectory(tests)
 

@@ -9,11 +9,20 @@
 #include "models/serverinfo.h"
 
 #include <KActionCollection>
+#include <KGlobalAccel>
 #include <KLocalizedString>
 #include <KMessageBox>
+#include <KNotification>
 #include <KStandardAction>
 
+#include <QAction>
+#include <QApplication>
+#include <QMenu>
 #include <QStackedWidget>
+#include <QSystemTrayIcon>
+
+#include <functional>
+#include <vector>
 
 namespace kiptv {
 
@@ -51,11 +60,14 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_player, &PlayerWidget::previousRequested, m_browse, [this] { m_browse->zap(-1); });
     // Playback errors are informational; they must not bounce to the login page.
     connect(m_player, &PlayerWidget::errorOccurred, this, [this](const QString &msg) {
+        notify(QStringLiteral("playbackError"), i18n("Playback error"), msg);
         KMessageBox::error(this, msg, i18nc("@title:window", "Playback"));
     });
 
     setupActions();
     setupGUI(Default, QStringLiteral("kiptvui.rc"));
+    setupSystemTray();
+    setupGlobalShortcuts();
 
     m_login->setProfiles(m_store.profiles(), m_store.lastUsedId());
     tryAutoLogin();
@@ -71,6 +83,79 @@ void MainWindow::setupActions()
     logout->setText(i18n("Switch Profile…"));
     logout->setIcon(QIcon::fromTheme(QStringLiteral("system-switch-user")));
     connect(logout, &QAction::triggered, this, &MainWindow::showLogin);
+}
+
+void MainWindow::setupSystemTray()
+{
+    if (!QSystemTrayIcon::isSystemTrayAvailable()) {
+        return;
+    }
+    m_tray = new QSystemTrayIcon(this);
+    m_tray->setIcon(QIcon::fromTheme(QStringLiteral("video-television")));
+    m_tray->setToolTip(i18n("kiptv"));
+
+    auto *menu = new QMenu(this);
+    auto *toggle = menu->addAction(i18n("Show/Hide Window"));
+    connect(toggle, &QAction::triggered, this, [this] {
+        setVisible(!isVisible());
+        if (isVisible()) {
+            raise();
+            activateWindow();
+        }
+    });
+    auto *playpause = menu->addAction(QIcon::fromTheme(QStringLiteral("media-playback-start")),
+                                      i18n("Play/Pause"));
+    connect(playpause, &QAction::triggered, m_player, &PlayerWidget::togglePause);
+    menu->addSeparator();
+    auto *quit = menu->addAction(QIcon::fromTheme(QStringLiteral("application-exit")), i18n("Quit"));
+    connect(quit, &QAction::triggered, qApp, &QApplication::quit);
+
+    m_tray->setContextMenu(menu);
+    connect(m_tray, &QSystemTrayIcon::activated, this, [this](QSystemTrayIcon::ActivationReason r) {
+        if (r == QSystemTrayIcon::Trigger) {
+            setVisible(!isVisible());
+            if (isVisible()) {
+                raise();
+                activateWindow();
+            }
+        }
+    });
+    m_tray->show();
+}
+
+void MainWindow::setupGlobalShortcuts()
+{
+    // Bind multimedia keys to playback control via KGlobalAccel. Registration
+    // is a no-op (with a warning) where the global-accel daemon is absent.
+    struct Binding {
+        const char *name;
+        QString text;
+        Qt::Key key;
+        std::function<void()> slot;
+    };
+    const std::vector<Binding> bindings = {
+        {"media_playpause", i18n("Play/Pause"), Qt::Key_MediaTogglePlayPause,
+         [this] { m_player->togglePause(); }},
+        {"media_stop", i18n("Stop"), Qt::Key_MediaStop, [this] { m_player->stop(); }},
+        {"media_next", i18n("Next Channel"), Qt::Key_MediaNext, [this] { m_browse->zap(1); }},
+        {"media_previous", i18n("Previous Channel"), Qt::Key_MediaPrevious,
+         [this] { m_browse->zap(-1); }},
+    };
+    for (const auto &b : bindings) {
+        auto *action = new QAction(b.text, this);
+        action->setObjectName(QString::fromLatin1(b.name));
+        connect(action, &QAction::triggered, this, b.slot);
+        KGlobalAccel::setGlobalShortcut(action, QList<QKeySequence>{QKeySequence(b.key)});
+    }
+}
+
+void MainWindow::notify(const QString &eventId, const QString &title, const QString &text)
+{
+    KNotification *n = new KNotification(eventId);
+    n->setComponentName(QStringLiteral("kiptv"));
+    n->setTitle(title);
+    n->setText(text);
+    n->sendEvent();
 }
 
 void MainWindow::tryAutoLogin()
@@ -121,6 +206,10 @@ void MainWindow::onPlayRequested(const QString &url, const QString &title)
     }
     m_player->play(url, title);
     m_stack->setCurrentWidget(m_player);
+    notify(QStringLiteral("nowPlaying"), i18n("Now playing"), title);
+    if (m_tray) {
+        m_tray->setToolTip(i18n("kiptv — %1", title));
+    }
 }
 
 void MainWindow::onOpenSeries(const QString &seriesId, const QString &name)

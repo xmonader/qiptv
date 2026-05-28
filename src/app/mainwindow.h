@@ -6,6 +6,7 @@
 #include <KXmlGuiWindow>
 
 class QStackedWidget;
+class QSystemTrayIcon;
 
 namespace kiptv {
 
@@ -32,6 +33,9 @@ public:
 
 private:
     void setupActions();
+    void setupSystemTray();
+    void setupGlobalShortcuts();
+    void notify(const QString &eventId, const QString &title, const QString &text);
     void tryAutoLogin();
 
     void onLoginRequested(const Profile &profile);
@@ -47,6 +51,7 @@ private:
     SeriesDetail *m_seriesDetail = nullptr;
     PlayerWidget *m_player = nullptr;
     QWidget *m_lastBrowsePage = nullptr; ///< page to return to after playback
+    QSystemTrayIcon *m_tray = nullptr;
     XtreamClient *m_client = nullptr;
     ImageLoader *m_images = nullptr;
     ProfileStore m_store;

@@ -151,6 +151,11 @@ void PlayerWidget::stop()
     m_mpv->stop();
 }
 
+void PlayerWidget::togglePause()
+{
+    m_mpv->togglePause();
+}
+
 void PlayerWidget::onPositionChanged(double seconds)
 {
     if (!m_userSeeking) {
