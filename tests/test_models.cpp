@@ -4,6 +4,10 @@
 #include "models/serverinfo.h"
 #include "models/vodstream.h"
 
+#include <QElapsedTimer>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QtTest>
 
 using namespace kiptv;
@@ -164,6 +168,32 @@ private Q_SLOTS:
         const SeriesInfo si = SeriesInfo::fromJson("{}");
         QCOMPARE(si.episodes.size(), 0);
         QCOMPARE(si.seasons().size(), 0);
+    }
+
+    void largeLiveListParsesQuickly()
+    {
+        // Build a 5000-channel response programmatically (no raw strings, so
+        // no moc '//' concern) and confirm parsing scales without pathology.
+        QJsonArray arr;
+        for (int i = 0; i < 5000; ++i) {
+            QJsonObject o;
+            o["stream_id"] = QString::number(i);
+            o["num"] = i;
+            o["name"] = QStringLiteral("Channel %1").arg(i);
+            o["category_id"] = QString::number(i % 50);
+            arr.append(o);
+        }
+        const QByteArray json = QJsonDocument(arr).toJson(QJsonDocument::Compact);
+
+        QElapsedTimer timer;
+        timer.start();
+        const auto live = liveStreamsFromJson(json);
+        const qint64 ms = timer.elapsed();
+
+        QCOMPARE(live.size(), 5000);
+        QCOMPARE(live[4999].streamId, 4999);
+        // Generous bound: parsing 5k items should be well under a second.
+        QVERIFY2(ms < 1000, qPrintable(QStringLiteral("parse took %1 ms").arg(ms)));
     }
 };
 

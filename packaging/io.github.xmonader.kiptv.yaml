@@ -1,0 +1,68 @@
+# Flatpak manifest for kiptv.
+#
+# NOTE: this manifest has NOT been built in the development environment
+# (flatpak-builder and the KDE runtime are not installed here). It follows the
+# conventional KDE-app + bundled-libmpv pattern; the mpv/libplacebo module
+# versions may need bumping. Build with:
+#
+#   flatpak install flathub org.kde.Platform//6.8 org.kde.Sdk//6.8
+#   flatpak-builder --user --install --force-clean build-flatpak \
+#       packaging/io.github.xmonader.kiptv.yaml
+#
+id: io.github.xmonader.kiptv
+runtime: org.kde.Platform
+runtime-version: '6.8'
+sdk: org.kde.Sdk
+command: kiptv
+finish-args:
+  - --share=network
+  - --share=ipc
+  - --socket=wayland
+  - --socket=fallback-x11
+  - --socket=pulseaudio
+  - --device=dri
+  # Media keys / global shortcuts and notifications over D-Bus.
+  - --talk-name=org.kde.kglobalaccel
+  - --talk-name=org.freedesktop.Notifications
+  - --talk-name=org.kde.StatusNotifierWatcher
+
+# ffmpeg is provided by the freedesktop ffmpeg-full extension.
+add-extensions:
+  org.freedesktop.Platform.ffmpeg-full:
+    directory: lib/ffmpeg
+    version: '24.08'
+    add-ld-path: .
+    no-autodownload: false
+
+cleanup-commands:
+  - mkdir -p /app/lib/ffmpeg
+
+modules:
+  - name: libplacebo
+    buildsystem: meson
+    config-opts:
+      - -Dvulkan=disabled
+      - -Ddemos=false
+    sources:
+      - type: git
+        url: https://github.com/haasn/libplacebo.git
+        tag: v6.338.2
+
+  - name: libmpv
+    buildsystem: meson
+    config-opts:
+      - -Dlibmpv=true
+      - -Dcplayer=false
+      - -Dmanpage-build=disabled
+    sources:
+      - type: git
+        url: https://github.com/mpv-player/mpv.git
+        tag: v0.38.0
+
+  - name: kiptv
+    buildsystem: cmake-ninja
+    config-opts:
+      - -DCMAKE_BUILD_TYPE=Release
+    sources:
+      - type: dir
+        path: ..
