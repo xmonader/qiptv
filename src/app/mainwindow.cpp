@@ -38,12 +38,14 @@ MainWindow::MainWindow(QWidget *parent)
     m_login = new LoginWidget(this);
     m_browse = new BrowseWidget(m_client, m_images, this);
     m_seriesDetail = new SeriesDetail(m_client, m_images, this);
-    m_player = new PlayerWidget(this);
 
+    // The player (and its libmpv-backed native window) is created lazily on
+    // first playback — see ensurePlayer(). Constructing it eagerly here put a
+    // native GPU video subwindow under the login form, which interferes with
+    // input/focus on some compositors and is pure waste before anything plays.
     m_stack->addWidget(m_login);        // index 0
     m_stack->addWidget(m_browse);       // index 1
     m_stack->addWidget(m_seriesDetail); // index 2
-    m_stack->addWidget(m_player);       // index 3
     setCentralWidget(m_stack);
 
     connect(m_login, &LoginWidget::loginRequested, this, &MainWindow::onLoginRequested);
@@ -54,18 +56,6 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_seriesDetail, &SeriesDetail::playEpisode, this, &MainWindow::onPlayRequested);
     connect(m_seriesDetail, &SeriesDetail::backRequested, this, [this] {
         m_stack->setCurrentWidget(m_browse);
-    });
-    connect(m_player, &PlayerWidget::backRequested, this, [this] {
-        m_stack->setCurrentWidget(m_lastBrowsePage ? m_lastBrowsePage : m_browse);
-    });
-    connect(m_player, &PlayerWidget::nextRequested, m_browse, [this] { m_browse->zap(1); });
-    connect(m_player, &PlayerWidget::previousRequested, m_browse, [this] { m_browse->zap(-1); });
-    connect(m_player, &PlayerWidget::volumeChanged, this,
-            [this](int v) { m_settings.setLastVolume(v); });
-    // Playback errors are informational; they must not bounce to the login page.
-    connect(m_player, &PlayerWidget::errorOccurred, this, [this](const QString &msg) {
-        notify(QStringLiteral("playbackError"), i18n("Playback error"), msg);
-        KMessageBox::error(this, msg, i18nc("@title:window", "Playback"));
     });
 
     setupActions();
@@ -106,7 +96,34 @@ void MainWindow::openSettings()
 void MainWindow::applySettings()
 {
     m_browse->setLiveContainer(m_settings.liveContainer());
+    if (m_player) {
+        m_player->setInitialVolume(m_settings.lastVolume());
+    }
+}
+
+PlayerWidget *MainWindow::ensurePlayer()
+{
+    if (m_player) {
+        return m_player;
+    }
+    m_player = new PlayerWidget(this);
+    m_stack->addWidget(m_player);
+
+    connect(m_player, &PlayerWidget::backRequested, this, [this] {
+        m_stack->setCurrentWidget(m_lastBrowsePage ? m_lastBrowsePage : m_browse);
+    });
+    connect(m_player, &PlayerWidget::nextRequested, m_browse, [this] { m_browse->zap(1); });
+    connect(m_player, &PlayerWidget::previousRequested, m_browse, [this] { m_browse->zap(-1); });
+    connect(m_player, &PlayerWidget::volumeChanged, this,
+            [this](int v) { m_settings.setLastVolume(v); });
+    // Playback errors are informational; they must not bounce to the login page.
+    connect(m_player, &PlayerWidget::errorOccurred, this, [this](const QString &msg) {
+        notify(QStringLiteral("playbackError"), i18n("Playback error"), msg);
+        KMessageBox::error(this, msg, i18nc("@title:window", "Playback"));
+    });
+
     m_player->setInitialVolume(m_settings.lastVolume());
+    return m_player;
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -141,7 +158,11 @@ void MainWindow::setupSystemTray()
     });
     auto *playpause = menu->addAction(QIcon::fromTheme(QStringLiteral("media-playback-start")),
                                       i18n("Play/Pause"));
-    connect(playpause, &QAction::triggered, m_player, &PlayerWidget::togglePause);
+    connect(playpause, &QAction::triggered, this, [this] {
+        if (m_player) {
+            m_player->togglePause();
+        }
+    });
     menu->addSeparator();
     auto *quit = menu->addAction(QIcon::fromTheme(QStringLiteral("application-exit")), i18n("Quit"));
     connect(quit, &QAction::triggered, this, [this] {
@@ -174,8 +195,8 @@ void MainWindow::setupGlobalShortcuts()
     };
     const std::vector<Binding> bindings = {
         {"media_playpause", i18n("Play/Pause"), Qt::Key_MediaTogglePlayPause,
-         [this] { m_player->togglePause(); }},
-        {"media_stop", i18n("Stop"), Qt::Key_MediaStop, [this] { m_player->stop(); }},
+         [this] { if (m_player) m_player->togglePause(); }},
+        {"media_stop", i18n("Stop"), Qt::Key_MediaStop, [this] { if (m_player) m_player->stop(); }},
         {"media_next", i18n("Next Channel"), Qt::Key_MediaNext, [this] { m_browse->zap(1); }},
         {"media_previous", i18n("Previous Channel"), Qt::Key_MediaPrevious,
          [this] { m_browse->zap(-1); }},
@@ -239,12 +260,13 @@ void MainWindow::onPlayRequested(const QString &url, const QString &title)
     // Remember whether we came from the browser or a series detail so Back
     // returns to the right place. When zapping (already on the player), keep
     // the remembered page.
+    PlayerWidget *player = ensurePlayer();
     QWidget *cur = m_stack->currentWidget();
     if (cur == m_browse || cur == m_seriesDetail) {
         m_lastBrowsePage = cur;
     }
-    m_player->play(url, title);
-    m_stack->setCurrentWidget(m_player);
+    player->play(url, title);
+    m_stack->setCurrentWidget(player);
     notify(QStringLiteral("nowPlaying"), i18n("Now playing"), title);
     if (m_tray) {
         m_tray->setToolTip(i18n("kiptv — %1", title));

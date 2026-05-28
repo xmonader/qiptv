@@ -4,6 +4,8 @@
 
 #include <QtGlobal>
 
+#include <clocale>
+
 namespace kiptv {
 
 namespace {
@@ -21,6 +23,11 @@ MpvWidget::MpvWidget(QWidget *parent)
     setAttribute(Qt::WA_DontCreateNativeAncestors);
     setAttribute(Qt::WA_OpaquePaintEvent);
     setMinimumSize(320, 180);
+
+    // libmpv requires the C numeric locale; Qt/KDE set it to the user's locale
+    // (e.g. comma decimal separators), which mpv warns about and which breaks
+    // its number parsing. Reset it for this and any later mpv use.
+    std::setlocale(LC_NUMERIC, "C");
 
     m_mpv = mpv_create();
     if (!m_mpv) {
