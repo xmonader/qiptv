@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gui name="kiptv" version="1" xmlns="http://www.kde.org/standards/kxmlgui/1.0">
+  <MenuBar>
+    <Menu name="file">
+      <Action name="logout"/>
+    </Menu>
+  </MenuBar>
+  <ToolBar name="mainToolBar" noMerge="1">
+    <text>Main Toolbar</text>
+    <Action name="logout"/>
+  </ToolBar>
+</gui>

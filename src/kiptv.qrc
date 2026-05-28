@@ -1,0 +1,8 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+  <!-- Embed the KXmlGui layout so setupGUI() finds it when running from the
+       build tree (it is also installed to KXMLGUIDIR for packaged builds). -->
+  <qresource prefix="/kxmlgui5/kiptv">
+    <file alias="kiptvui.rc">kiptvui.rc</file>
+  </qresource>
+</RCC>

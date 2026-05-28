@@ -65,6 +65,8 @@ target_link_libraries(kiptv_core PUBLIC
 set(KIPTV_APP_SOURCES
     src/main.cpp
     src/app/mainwindow.cpp
+    src/auth/loginwidget.cpp
+    src/kiptv.qrc
 )
 
 add_executable(kiptv ${KIPTV_APP_SOURCES})
@@ -85,6 +87,7 @@ target_link_libraries(kiptv PRIVATE
 )
 
 install(TARGETS kiptv ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})
+install(FILES src/kiptvui.rc DESTINATION ${KDE_INSTALL_KXMLGUIDIR}/kiptv)
 
 add_subdirectory(tests)
 
