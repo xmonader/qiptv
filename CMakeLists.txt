@@ -50,6 +50,7 @@ set(KIPTV_CORE_SOURCES
     src/models/livestream.cpp
     src/models/vodstream.cpp
     src/models/series.cpp
+    src/config/profilestore.cpp
 )
 
 add_library(kiptv_core STATIC ${KIPTV_CORE_SOURCES})
@@ -58,6 +59,7 @@ target_link_libraries(kiptv_core PUBLIC
     Qt6::Core
     Qt6::Network
     KF6::I18n
+    KF6::ConfigCore
 )
 
 set(KIPTV_APP_SOURCES

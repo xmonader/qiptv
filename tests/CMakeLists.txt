@@ -20,3 +20,7 @@ add_test(NAME urlbuilder COMMAND test_urlbuilder)
 add_executable(test_xtreamclient test_xtreamclient.cpp)
 target_link_libraries(test_xtreamclient PRIVATE kiptv_core Qt6::Test Qt6::Network)
 add_test(NAME xtreamclient COMMAND test_xtreamclient)
+
+add_executable(test_profilestore test_profilestore.cpp)
+target_link_libraries(test_profilestore PRIVATE kiptv_core Qt6::Test)
+add_test(NAME profilestore COMMAND test_profilestore)

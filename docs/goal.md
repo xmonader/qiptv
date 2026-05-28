@@ -134,3 +134,13 @@ Stream URL patterns:
 ## Progress Log
 - 2026-05-29: Goal created. Stack locked (C++ / KDE QWidgets / libmpv /
   Xtream Codes API). Prior Rust+egui attempt superseded — to be removed.
+- 2026-05-29: **Phase 1 done.** CMake+ECM/KF6/libmpv build, Makefile,
+  KXmlGuiWindow skeleton, QtTest harness. Removed Rust prototype.
+- 2026-05-29: **Phase 2 done.** Defensive JSON coercion (parse::*), all
+  models (Category, ServerInfo/UserInfo, LiveStream, VodStream/VodInfo,
+  Series/SeriesInfo/Episode), UrlBuilder, and async XtreamClient with all
+  player_api actions. 5 test suites green (parse, models, urlbuilder,
+  client-via-mock-HTTP). KF6Wallet absent on host → credentials will use
+  KConfig fallback. Note: this moc mis-lexes `//` inside raw-string
+  literals — keep test fixture URLs scheme-less.
+- Next: Phase 3 (auth + profiles).
