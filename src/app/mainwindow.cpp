@@ -47,6 +47,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_player, &PlayerWidget::backRequested, this, [this] {
         m_stack->setCurrentWidget(m_lastBrowsePage ? m_lastBrowsePage : m_browse);
     });
+    connect(m_player, &PlayerWidget::nextRequested, m_browse, [this] { m_browse->zap(1); });
+    connect(m_player, &PlayerWidget::previousRequested, m_browse, [this] { m_browse->zap(-1); });
     // Playback errors are informational; they must not bounce to the login page.
     connect(m_player, &PlayerWidget::errorOccurred, this, [this](const QString &msg) {
         KMessageBox::error(this, msg, i18nc("@title:window", "Playback"));
@@ -111,9 +113,12 @@ void MainWindow::onAuthenticated(const ServerInfo &info)
 void MainWindow::onPlayRequested(const QString &url, const QString &title)
 {
     // Remember whether we came from the browser or a series detail so Back
-    // returns to the right place.
-    m_lastBrowsePage = (m_stack->currentWidget() == m_seriesDetail) ? static_cast<QWidget *>(m_seriesDetail)
-                                                                    : static_cast<QWidget *>(m_browse);
+    // returns to the right place. When zapping (already on the player), keep
+    // the remembered page.
+    QWidget *cur = m_stack->currentWidget();
+    if (cur == m_browse || cur == m_seriesDetail) {
+        m_lastBrowsePage = cur;
+    }
     m_player->play(url, title);
     m_stack->setCurrentWidget(m_player);
 }

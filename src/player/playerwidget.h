@@ -27,6 +27,8 @@ public:
 Q_SIGNALS:
     void backRequested();
     void errorOccurred(const QString &message);
+    void previousRequested();
+    void nextRequested();
 
 protected:
     void keyPressEvent(QKeyEvent *event) override;
@@ -47,8 +49,10 @@ private:
     MpvWidget *m_mpv = nullptr;
     QWidget *m_controls = nullptr;
     QToolButton *m_back = nullptr;
+    QToolButton *m_previous = nullptr;
     QToolButton *m_playPause = nullptr;
     QToolButton *m_stop = nullptr;
+    QToolButton *m_next = nullptr;
     QToolButton *m_fullscreen = nullptr;
     QSlider *m_position = nullptr;
     QSlider *m_volume = nullptr;

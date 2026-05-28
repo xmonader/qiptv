@@ -55,8 +55,10 @@ PlayerWidget::PlayerWidget(QWidget *parent)
     m_title->setStyleSheet(QStringLiteral("font-weight: bold;"));
 
     m_back = iconButton(QStringLiteral("go-previous"), i18n("Back"), this);
+    m_previous = iconButton(QStringLiteral("media-skip-backward"), i18n("Previous channel"), this);
     m_playPause = iconButton(QStringLiteral("media-playback-pause"), i18n("Play/Pause"), this);
     m_stop = iconButton(QStringLiteral("media-playback-stop"), i18n("Stop"), this);
+    m_next = iconButton(QStringLiteral("media-skip-forward"), i18n("Next channel"), this);
     m_fullscreen = iconButton(QStringLiteral("view-fullscreen"), i18n("Fullscreen"), this);
 
     m_position = new QSlider(Qt::Horizontal, this);
@@ -71,8 +73,10 @@ PlayerWidget::PlayerWidget(QWidget *parent)
 
     auto *row = new QHBoxLayout;
     row->addWidget(m_back);
+    row->addWidget(m_previous);
     row->addWidget(m_playPause);
     row->addWidget(m_stop);
+    row->addWidget(m_next);
     row->addWidget(m_position, 1);
     row->addWidget(m_timeLabel);
     row->addWidget(new QLabel(QStringLiteral("🔊"), this));
@@ -110,6 +114,8 @@ PlayerWidget::PlayerWidget(QWidget *parent)
         leaveFullscreen();
         Q_EMIT backRequested();
     });
+    connect(m_previous, &QToolButton::clicked, this, &PlayerWidget::previousRequested);
+    connect(m_next, &QToolButton::clicked, this, &PlayerWidget::nextRequested);
     connect(m_playPause, &QToolButton::clicked, m_mpv, &MpvWidget::togglePause);
     connect(m_stop, &QToolButton::clicked, this, &PlayerWidget::stop);
     connect(m_fullscreen, &QToolButton::clicked, this, &PlayerWidget::toggleFullscreen);
@@ -261,6 +267,14 @@ void PlayerWidget::keyPressEvent(QKeyEvent *event)
         break;
     case Qt::Key_F:
         toggleFullscreen();
+        break;
+    case Qt::Key_N:
+    case Qt::Key_MediaNext:
+        Q_EMIT nextRequested();
+        break;
+    case Qt::Key_P:
+    case Qt::Key_MediaPrevious:
+        Q_EMIT previousRequested();
         break;
     case Qt::Key_Escape:
         if (m_isFullscreen) {

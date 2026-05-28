@@ -33,6 +33,10 @@ public:
     /// Clear caches and fetch categories for the current section.
     void reload();
 
+    /// Zap to the next (+1) or previous (-1) live channel, wrapping around.
+    /// No-op outside the Live section or when the list is empty.
+    void zap(int delta);
+
 Q_SIGNALS:
     void playRequested(const QString &url, const QString &title);
     void openSeriesRequested(const QString &seriesId, const QString &name);
@@ -60,6 +64,7 @@ private:
     ImageLoader *m_images = nullptr;
 
     QHash<int, QVector<Category>> m_catCache; // section -> categories
+    int m_currentRow = -1;                    // last activated content row
 };
 
 } // namespace kiptv

@@ -237,11 +237,31 @@ void BrowseWidget::onCategoryChanged()
     }
 }
 
+void BrowseWidget::zap(int delta)
+{
+    if (currentSection() != Live || m_content->count() == 0 || delta == 0) {
+        return;
+    }
+    const int count = m_content->count();
+    int row = m_currentRow;
+    // Step over hidden (filtered-out) items; give up after a full loop.
+    for (int tries = 0; tries < count; ++tries) {
+        row = ((row + delta) % count + count) % count;
+        QListWidgetItem *candidate = m_content->item(row);
+        if (!candidate->isHidden()) {
+            m_content->setCurrentItem(candidate);
+            onContentActivated(candidate);
+            return;
+        }
+    }
+}
+
 void BrowseWidget::onContentActivated(QListWidgetItem *item)
 {
     if (!item) {
         return;
     }
+    m_currentRow = m_content->row(item);
     const Section kind = static_cast<Section>(item->data(KindRole).toInt());
     switch (kind) {
     case Live: {
