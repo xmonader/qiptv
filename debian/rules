@@ -1,0 +1,12 @@
+#!/usr/bin/make -f
+# Build kiptv as a Debian package via debhelper's CMake buildsystem.
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+%:
+	dh $@ --buildsystem=cmake
+
+# The QtTest suites need a QPA platform plugin; use offscreen in the
+# headless build environment.
+override_dh_auto_test:
+	QT_QPA_PLATFORM=offscreen dh_auto_test

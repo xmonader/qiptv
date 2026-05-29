@@ -16,3 +16,12 @@ compile_commands.json
 # Secrets — never commit real provider accounts
 *.local
 secrets.*
+
+# Debian packaging build artifacts (keep the source files under debian/)
+/obj-*-linux-gnu/
+/debian/kiptv/
+/debian/.debhelper/
+/debian/files
+/debian/*.substvars
+/debian/*.debhelper.log
+/debian/debhelper-build-stamp

@@ -1,0 +1,32 @@
+Source: kiptv
+Section: video
+Priority: optional
+Maintainer: xmonader <xmonader@gmail.com>
+Build-Depends: debhelper-compat (= 13),
+ cmake,
+ extra-cmake-modules (>= 6.0),
+ qt6-base-dev (>= 6.5),
+ libkf6config-dev,
+ libkf6configwidgets-dev,
+ libkf6coreaddons-dev,
+ libkf6globalaccel-dev,
+ libkf6i18n-dev,
+ libkf6iconthemes-dev,
+ libkf6kio-dev,
+ libkf6notifications-dev,
+ libkf6widgetsaddons-dev,
+ libkf6xmlgui-dev,
+ libmpv-dev
+Standards-Version: 4.7.0
+Homepage: https://github.com/xmonader/kiptv
+Rules-Requires-Root: no
+
+Package: kiptv
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Xtream Codes IPTV player for KDE
+ kiptv is a native KDE/Qt6 application for watching Xtream Codes IPTV
+ live TV, movies and series, with libmpv-based playback.
+ .
+ It integrates with the KDE desktop: desktop notifications, multimedia
+ keys, a system-tray icon, and persistent connection profiles.
