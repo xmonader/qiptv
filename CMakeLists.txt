@@ -102,6 +102,8 @@ install(FILES src/kiptvui.rc DESTINATION ${KDE_INSTALL_KXMLGUIDIR}/kiptv)
 install(FILES src/kiptv.notifyrc DESTINATION ${KDE_INSTALL_KNOTIFYRCDIR})
 install(FILES data/io.github.xmonader.kiptv.desktop DESTINATION ${KDE_INSTALL_APPDIR})
 install(FILES data/io.github.xmonader.kiptv.metainfo.xml DESTINATION ${KDE_INSTALL_METAINFODIR})
+install(FILES data/icons/io.github.xmonader.kiptv.svg
+        DESTINATION ${KDE_INSTALL_ICONDIR}/hicolor/scalable/apps)
 
 add_subdirectory(tests)
 
