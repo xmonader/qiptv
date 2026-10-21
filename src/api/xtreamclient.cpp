@@ -1,5 +1,7 @@
 #include "api/xtreamclient.h"
 
+#include "core/useragent.h"
+
 #include <KLocalizedString>
 
 #include <QNetworkAccessManager>
@@ -52,6 +54,8 @@ void XtreamClient::get(const QUrl &url, Handler onSuccess)
 
     QNetworkRequest req(url);
     req.setTransferTimeout(m_timeoutMs);
+    // Providers commonly 403 requests without a User-Agent; QNAM sends none.
+    req.setRawHeader("User-Agent", kUserAgent);
     req.setAttribute(QNetworkRequest::RedirectPolicyAttribute,
                      QNetworkRequest::NoLessSafeRedirectPolicy);
     // Xtream servers commonly mishandle HTTP/2; stick to HTTP/1.1.

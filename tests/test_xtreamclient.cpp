@@ -1,5 +1,7 @@
 #include "api/xtreamclient.h"
 
+#include "core/useragent.h"
+
 #include <QNetworkAccessManager>
 #include <QTcpServer>
 #include <QTcpSocket>
@@ -15,6 +17,7 @@ public:
     QMap<QString, QByteArray> bodies; // action -> JSON body
     int status = 200;
     bool dropConnection = false;      // simulate a network failure
+    QByteArray lastUserAgent;         // User-Agent header of the last request
 
     bool start()
     {
@@ -59,6 +62,13 @@ private:
                 sock->abort();
                 sock->deleteLater();
                 return;
+            }
+            const QByteArray headers = request.left(request.indexOf("\r\n\r\n"));
+            const QList<QByteArray> lines = headers.split('\n');
+            for (const QByteArray &line : lines) {
+                if (line.left(11).compare("User-Agent:", Qt::CaseInsensitive) == 0) {
+                    lastUserAgent = line.mid(line.indexOf(':') + 1).trimmed();
+                }
             }
             const QByteArray body = bodies.value(actionOf(request));
             QByteArray resp = "HTTP/1.1 " + QByteArray::number(status) + " X\r\n";
@@ -161,6 +171,29 @@ private Q_SLOTS:
         client.authenticate();
 
         QTRY_VERIFY_WITH_TIMEOUT(!err.isEmpty(), 3000);
+    }
+
+    void userAgentHeaderSent()
+    {
+        // Providers (nginx front-ends) 403 requests without a User-Agent;
+        // QNetworkAccessManager sends none unless we set one explicitly.
+        MockHttpServer mock;
+        mock.bodies[QString()] =
+            R"({"user_info":{"username":"bob","auth":1,"status":"Active"},)"
+            R"("server_info":{"url":"127.0.0.1","port":"80"}})";
+        QVERIFY(mock.start());
+
+        QNetworkAccessManager nam;
+        XtreamClient client(&nam);
+        client.setCredentials(mock.baseUrl(), "bob", "secret");
+
+        bool ok = false;
+        connect(&client, &XtreamClient::authenticated, [&](const ServerInfo &) { ok = true; });
+        client.authenticate();
+
+        QTRY_VERIFY_WITH_TIMEOUT(ok, 3000);
+        QVERIFY2(!mock.lastUserAgent.isEmpty(), "request must carry a User-Agent header");
+        QCOMPARE(mock.lastUserAgent, QByteArray(kUserAgent));
     }
 
     void noServerEmitsError()
