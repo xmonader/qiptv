@@ -5,7 +5,7 @@
 #include <QPushButton>
 #include <QtTest>
 
-using namespace kiptv;
+using namespace qiptv;
 
 // Widget-level behaviour: validation, signal emission, profile prefill.
 // Runs under the offscreen platform (set via the test's ENVIRONMENT).

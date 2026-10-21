@@ -7,7 +7,7 @@ class QToolButton;
 class QLabel;
 class QTimer;
 
-namespace kiptv {
+namespace qiptv {
 
 class MpvWidget;
 
@@ -69,4 +69,4 @@ private:
     bool m_isFullscreen = false;
 };
 
-} // namespace kiptv
+} // namespace qiptv

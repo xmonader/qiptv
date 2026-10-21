@@ -10,7 +10,7 @@ class QListWidgetItem;
 class QLabel;
 class QPushButton;
 
-namespace kiptv {
+namespace qiptv {
 
 class XtreamClient;
 class ImageLoader;
@@ -54,4 +54,4 @@ private:
     SeriesInfo m_info;
 };
 
-} // namespace kiptv
+} // namespace qiptv

@@ -3,7 +3,7 @@
 #include <QTemporaryDir>
 #include <QtTest>
 
-using namespace kiptv;
+using namespace qiptv;
 
 class SettingsTest : public QObject {
     Q_OBJECT

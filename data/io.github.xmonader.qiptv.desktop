@@ -1,10 +1,10 @@
 [Desktop Entry]
 Type=Application
-Name=kiptv
+Name=qiptv
 GenericName=IPTV Player
 Comment=Watch Xtream Codes IPTV live TV, movies and series
-Exec=kiptv
-Icon=io.github.xmonader.kiptv
+Exec=qiptv
+Icon=io.github.xmonader.qiptv
 Terminal=false
 Categories=Qt;AudioVideo;Player;TV;
 Keywords=IPTV;Xtream;TV;Stream;Live;VOD;

@@ -5,7 +5,7 @@
 struct mpv_handle;
 struct mpv_render_context;
 
-namespace kiptv {
+namespace qiptv {
 
 /**
  * A QOpenGLWidget that renders libmpv video through mpv's render API.
@@ -60,4 +60,4 @@ private:
     bool m_paused = false;
 };
 
-} // namespace kiptv
+} // namespace qiptv

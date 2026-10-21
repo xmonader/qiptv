@@ -1,4 +1,4 @@
-# kiptv — Makefile wraps CMake and packaging. Primary developer interface.
+# qiptv — Makefile wraps CMake and packaging. Primary developer interface.
 BUILD_DIR := build
 DIST_DIR := dist
 
@@ -24,15 +24,15 @@ lint:
 	fi
 
 run: build
-	@./$(BUILD_DIR)/bin/kiptv
+	@./$(BUILD_DIR)/qiptv
 
 install: build
 	@cmake --install $(BUILD_DIR)
 
 # Validate the desktop entry and AppStream metadata (packaging prerequisites).
 validate:
-	@desktop-file-validate data/io.github.xmonader.kiptv.desktop && echo "desktop: OK"
-	@appstreamcli validate --no-net data/io.github.xmonader.kiptv.metainfo.xml
+	@desktop-file-validate data/io.github.xmonader.qiptv.desktop && echo "desktop: OK"
+	@appstreamcli validate --no-net data/io.github.xmonader.qiptv.metainfo.xml
 
 # Build the Debian package. dpkg-buildpackage hard-codes its output to the
 # parent directory; we relocate the artifacts into dist/ so nothing leaks
@@ -41,18 +41,18 @@ deb:
 	@command -v dpkg-buildpackage >/dev/null 2>&1 || { echo "dpkg-buildpackage not found; install dpkg-dev debhelper"; exit 1; }
 	@dpkg-buildpackage -b -us -uc
 	@mkdir -p $(DIST_DIR)
-	@mv -f ../kiptv_*.deb ../kiptv_*.changes ../kiptv_*.buildinfo ../kiptv-dbgsym_*.ddeb $(DIST_DIR)/ 2>/dev/null || true
-	@echo "Built: $$(ls -1t $(DIST_DIR)/kiptv_*.deb 2>/dev/null | head -1)"
+	@mv -f ../qiptv_*.deb ../qiptv_*.changes ../qiptv_*.buildinfo ../qiptv-dbgsym_*.ddeb $(DIST_DIR)/ 2>/dev/null || true
+	@echo "Built: $$(ls -1t $(DIST_DIR)/qiptv_*.deb 2>/dev/null | head -1)"
 
 # Run the Debian policy linter against the most recent build (optional tool).
 deb-lint:
 	@if command -v lintian >/dev/null 2>&1; then \
-		lintian $$(ls -1t $(DIST_DIR)/kiptv_*.deb 2>/dev/null | head -1); \
+		lintian $$(ls -1t $(DIST_DIR)/qiptv_*.deb 2>/dev/null | head -1); \
 	else \
 		echo "lintian not installed (apt install lintian)"; \
 	fi
 
 clean:
 	@rm -rf $(BUILD_DIR) $(DIST_DIR) obj-*-linux-gnu \
-		debian/kiptv debian/.debhelper debian/files \
+		debian/qiptv debian/.debhelper debian/files \
 		debian/*.substvars debian/*.debhelper.log debian/debhelper-build-stamp

@@ -9,7 +9,7 @@
 class QStackedWidget;
 class QSystemTrayIcon;
 
-namespace kiptv {
+namespace qiptv {
 
 class LoginWidget;
 class BrowseWidget;
@@ -66,4 +66,4 @@ private:
     bool m_forceQuit = false; ///< set by the tray Quit action to bypass close-to-tray
 };
 
-} // namespace kiptv
+} // namespace qiptv

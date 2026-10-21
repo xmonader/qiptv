@@ -6,7 +6,7 @@
 #include <QTcpSocket>
 #include <QtTest>
 
-using namespace kiptv;
+using namespace qiptv;
 
 // Serves a fixed body for any request. Counts requests so we can prove the
 // cache prevents a second network hit.

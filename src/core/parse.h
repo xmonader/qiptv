@@ -12,7 +12,7 @@
  * "", absent keys, or even empty arrays. These helpers never throw and
  * always return the supplied default on anything unexpected.
  */
-namespace kiptv::parse {
+namespace qiptv::parse {
 
 /// Coerce to string. Numbers are stringified; null/array/object -> def.
 QString str(const QJsonValue &v, const QString &def = QString());
@@ -29,4 +29,4 @@ double number(const QJsonValue &v, double def = 0.0);
 /// Coerce to bool. Accepts true/false, 1/0, "1"/"0", "true"/"false".
 bool boolean(const QJsonValue &v, bool def = false);
 
-} // namespace kiptv::parse
+} // namespace qiptv::parse

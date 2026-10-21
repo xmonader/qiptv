@@ -1,12 +1,12 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Upstream-Name: kiptv
-Source: https://github.com/xmonader/kiptv
+Upstream-Name: qiptv
+Source: https://github.com/xmonader/qiptv
 
 Files: *
 Copyright: 2026 xmonader <xmonader@gmail.com>
 License: MIT
 
-Files: data/io.github.xmonader.kiptv.metainfo.xml
+Files: data/io.github.xmonader.qiptv.metainfo.xml
 Copyright: 2026 xmonader <xmonader@gmail.com>
 License: CC0-1.0
 

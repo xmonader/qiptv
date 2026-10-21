@@ -13,7 +13,7 @@
 class QNetworkAccessManager;
 class QNetworkReply;
 
-namespace kiptv {
+namespace qiptv {
 
 /**
  * Async client for the Xtream Codes player_api.php.
@@ -49,15 +49,15 @@ public:
     void fetchVodInfo(const QString &vodId);
 
 Q_SIGNALS:
-    void authenticated(const kiptv::ServerInfo &info);
-    void liveCategoriesReady(const QVector<kiptv::Category> &categories);
-    void vodCategoriesReady(const QVector<kiptv::Category> &categories);
-    void seriesCategoriesReady(const QVector<kiptv::Category> &categories);
-    void liveStreamsReady(const QVector<kiptv::LiveStream> &streams);
-    void vodStreamsReady(const QVector<kiptv::VodStream> &streams);
-    void seriesReady(const QVector<kiptv::Series> &series);
-    void seriesInfoReady(const kiptv::SeriesInfo &info);
-    void vodInfoReady(const kiptv::VodInfo &info);
+    void authenticated(const qiptv::ServerInfo &info);
+    void liveCategoriesReady(const QVector<qiptv::Category> &categories);
+    void vodCategoriesReady(const QVector<qiptv::Category> &categories);
+    void seriesCategoriesReady(const QVector<qiptv::Category> &categories);
+    void liveStreamsReady(const QVector<qiptv::LiveStream> &streams);
+    void vodStreamsReady(const QVector<qiptv::VodStream> &streams);
+    void seriesReady(const QVector<qiptv::Series> &series);
+    void seriesInfoReady(const qiptv::SeriesInfo &info);
+    void vodInfoReady(const qiptv::VodInfo &info);
     void errorOccurred(const QString &message);
 
 private:
@@ -69,4 +69,4 @@ private:
     int m_timeoutMs = 15000;
 };
 
-} // namespace kiptv
+} // namespace qiptv

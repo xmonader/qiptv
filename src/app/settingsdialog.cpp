@@ -10,7 +10,7 @@
 #include <QSpinBox>
 #include <QVBoxLayout>
 
-namespace kiptv {
+namespace qiptv {
 
 SettingsDialog::SettingsDialog(Settings &settings, QWidget *parent)
     : QDialog(parent)
@@ -60,4 +60,4 @@ void SettingsDialog::apply()
     m_settings.save();
 }
 
-} // namespace kiptv
+} // namespace qiptv

@@ -2,7 +2,7 @@
 
 #include <QtTest>
 
-using namespace kiptv;
+using namespace qiptv;
 
 // Normal "" string literals are used here (not R"(...)") so that http:// URLs
 // don't trip the moc raw-string '//' lexer quirk documented in test_models.

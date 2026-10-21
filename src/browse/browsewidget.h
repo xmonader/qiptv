@@ -10,7 +10,7 @@ class QListWidgetItem;
 class QLineEdit;
 class QLabel;
 
-namespace kiptv {
+namespace qiptv {
 
 class XtreamClient;
 class ImageLoader;
@@ -71,4 +71,4 @@ private:
     QString m_liveContainer = QStringLiteral("ts");
 };
 
-} // namespace kiptv
+} // namespace qiptv

@@ -4,7 +4,7 @@
 #include <QString>
 #include <QStringList>
 
-namespace kiptv {
+namespace qiptv {
 
 /// The "user_info" block of the player_api.php auth response.
 struct UserInfo {
@@ -42,4 +42,4 @@ struct ServerInfo {
     static ServerInfo fromJson(const QByteArray &json);
 };
 
-} // namespace kiptv
+} // namespace qiptv

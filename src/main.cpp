@@ -7,11 +7,11 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-    QApplication::setApplicationName(QStringLiteral("kiptv"));
+    QApplication::setApplicationName(QStringLiteral("qiptv"));
     QApplication::setApplicationVersion(QStringLiteral("0.1.0"));
     QApplication::setOrganizationName(QStringLiteral("xmonader"));
     QApplication::setOrganizationDomain(QStringLiteral("github.io.xmonader"));
-    QApplication::setDesktopFileName(QStringLiteral("io.github.xmonader.kiptv"));
+    QApplication::setDesktopFileName(QStringLiteral("io.github.xmonader.qiptv"));
 
     QCommandLineParser parser;
     parser.setApplicationDescription(
@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
     parser.addVersionOption();
     parser.process(app);
 
-    auto *window = new kiptv::MainWindow();
+    auto *window = new qiptv::MainWindow();
     window->show();
 
     return app.exec();

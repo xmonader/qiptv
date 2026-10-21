@@ -6,7 +6,7 @@
 #include <QJsonDocument>
 #include <algorithm>
 
-namespace kiptv {
+namespace qiptv {
 
 Series Series::fromJson(const QJsonObject &o)
 {
@@ -115,4 +115,4 @@ QVector<Series> seriesListFromJson(const QByteArray &json)
     return out;
 }
 
-} // namespace kiptv
+} // namespace qiptv

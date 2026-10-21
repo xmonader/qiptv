@@ -1,4 +1,4 @@
-Source: kiptv
+Source: qiptv
 Section: video
 Priority: optional
 Maintainer: xmonader <xmonader@gmail.com>
@@ -7,14 +7,14 @@ Build-Depends: debhelper-compat (= 13),
  qt6-base-dev (>= 6.5),
  libmpv-dev
 Standards-Version: 4.7.0
-Homepage: https://github.com/xmonader/kiptv
+Homepage: https://github.com/xmonader/qiptv
 Rules-Requires-Root: no
 
-Package: kiptv
+Package: qiptv
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: Xtream Codes IPTV player
- kiptv is a native Qt6 application for watching Xtream Codes IPTV
+ qiptv is a native Qt6 application for watching Xtream Codes IPTV
  live TV, movies and series, with libmpv-based playback.
  .
  It integrates with the desktop: desktop notifications, multimedia

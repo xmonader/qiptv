@@ -3,7 +3,7 @@
 #include <QTemporaryDir>
 #include <QtTest>
 
-using namespace kiptv;
+using namespace qiptv;
 
 // Exercises persistence round-trips against a throwaway config file.
 class ProfileStoreTest : public QObject {

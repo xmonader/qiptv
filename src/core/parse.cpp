@@ -1,6 +1,6 @@
 #include "core/parse.h"
 
-namespace kiptv::parse {
+namespace qiptv::parse {
 
 QString str(const QJsonValue &v, const QString &def)
 {
@@ -89,4 +89,4 @@ bool boolean(const QJsonValue &v, bool def)
     }
 }
 
-} // namespace kiptv::parse
+} // namespace qiptv::parse

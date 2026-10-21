@@ -12,7 +12,7 @@
 #include <QPixmap>
 #include <QVBoxLayout>
 
-namespace kiptv {
+namespace qiptv {
 
 namespace {
 enum Roles {
@@ -139,12 +139,12 @@ BrowseWidget::BrowseWidget(XtreamClient *client, ImageLoader *images, QWidget *p
         applyFilter(m_search->text());
     });
 
-    connect(m_client, &XtreamClient::seriesReady, this, [this](const QVector<kiptv::Series> &series) {
+    connect(m_client, &XtreamClient::seriesReady, this, [this](const QVector<qiptv::Series> &series) {
         if (currentSection() != Series) {
             return;
         }
         m_content->clear();
-        for (const kiptv::Series &s : series) {
+        for (const qiptv::Series &s : series) {
             auto *item = new QListWidgetItem(fallbackIcon(Series), s.name);
             item->setData(IdRole, QString::number(s.seriesId));
             item->setData(IconUrlRole, s.cover);
@@ -306,4 +306,4 @@ void BrowseWidget::onImageLoaded(const QString &url, const QImage &image)
     }
 }
 
-} // namespace kiptv
+} // namespace qiptv

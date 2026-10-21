@@ -1,4 +1,4 @@
-# Flatpak manifest for kiptv.
+# Flatpak manifest for qiptv.
 #
 # NOTE: this manifest has NOT been built in the development environment
 # (flatpak-builder and the KDE runtime are not installed here). It follows the
@@ -7,13 +7,13 @@
 #
 #   flatpak install flathub org.kde.Platform//6.8 org.kde.Sdk//6.8
 #   flatpak-builder --user --install --force-clean build-flatpak \
-#       packaging/io.github.xmonader.kiptv.yaml
+#       packaging/io.github.xmonader.qiptv.yaml
 #
-id: io.github.xmonader.kiptv
+id: io.github.xmonader.qiptv
 runtime: org.kde.Platform
 runtime-version: '6.8'
 sdk: org.kde.Sdk
-command: kiptv
+command: qiptv
 finish-args:
   - --share=network
   - --share=ipc
@@ -59,7 +59,7 @@ modules:
         url: https://github.com/mpv-player/mpv.git
         tag: v0.38.0
 
-  - name: kiptv
+  - name: qiptv
     buildsystem: cmake-ninja
     config-opts:
       - -DCMAKE_BUILD_TYPE=Release

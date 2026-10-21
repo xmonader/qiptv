@@ -24,7 +24,7 @@
 #include <functional>
 #include <vector>
 
-namespace kiptv {
+namespace qiptv {
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -88,7 +88,7 @@ void MainWindow::setupActions()
     connect(preferences, &QAction::triggered, this, &MainWindow::openSettings);
     addAction(preferences);
 
-    // Menus replace the KXmlGui kiptvui.rc layout (File > Switch Profile,
+    // Menus replace the KXmlGui qiptvui.rc layout (File > Switch Profile,
     // toolbar entry) with the equivalent QMainWindow structure.
     auto *fileMenu = menuBar()->addMenu(tr("&File"));
     fileMenu->addAction(logout);
@@ -133,7 +133,7 @@ PlayerWidget *MainWindow::ensurePlayer()
     // by vo=libmpv in MpvWidget plus show()-before-play() in onPlayRequested.
     m_player = new PlayerWidget(this);
     m_player->setWindowFlag(Qt::Window);
-    m_player->setWindowTitle(tr("kiptv — Player"));
+    m_player->setWindowTitle(tr("qiptv — Player"));
     m_player->resize(960, 540);
 
     connect(m_player, &PlayerWidget::backRequested, this, [this] {
@@ -174,7 +174,7 @@ void MainWindow::setupSystemTray()
     }
     m_tray = new QSystemTrayIcon(this);
     m_tray->setIcon(QIcon::fromTheme(QStringLiteral("video-television")));
-    m_tray->setToolTip(tr("kiptv"));
+    m_tray->setToolTip(tr("qiptv"));
 
     auto *menu = new QMenu(this);
     auto *toggle = menu->addAction(tr("Show/Hide Window"));
@@ -216,7 +216,7 @@ void MainWindow::setupMediaKeys()
 {
     // Bind multimedia keys to playback control. Qt has no API for system-wide
     // key grabbing (KGlobalAccel delegated that to the desktop daemon), so
-    // these are application-scope shortcuts: they fire whenever any kiptv
+    // these are application-scope shortcuts: they fire whenever any qiptv
     // window has focus, not while other apps are in the foreground.
     struct Binding {
         Qt::Key key;
@@ -276,7 +276,7 @@ void MainWindow::onAuthenticated(const ServerInfo &info)
         m_login->setProfiles(m_store.profiles(), id);
     }
 
-    setWindowTitle(tr("kiptv — %1").arg(info.user.username));
+    setWindowTitle(tr("qiptv — %1").arg(info.user.username));
     m_browse->reload();
     m_stack->setCurrentWidget(m_browse);
 }
@@ -296,7 +296,7 @@ void MainWindow::onPlayRequested(const QString &url, const QString &title)
     player->play(url, title);
     notify(tr("Now playing"), title);
     if (m_tray) {
-        m_tray->setToolTip(tr("kiptv — %1").arg(title));
+        m_tray->setToolTip(tr("qiptv — %1").arg(title));
     }
 }
 
@@ -320,4 +320,4 @@ void MainWindow::showLogin()
     m_stack->setCurrentWidget(m_login);
 }
 
-} // namespace kiptv
+} // namespace qiptv

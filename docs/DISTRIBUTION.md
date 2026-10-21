@@ -7,12 +7,12 @@ make build
 cmake --install build --prefix /usr/local
 ```
 
-Installs the `kiptv` binary plus the desktop entry, AppStream metainfo,
+Installs the `qiptv` binary plus the desktop entry, AppStream metainfo,
 and icon to the standard GNUInstallDirs locations.
 
 ## Flatpak
 
-A manifest is provided at `packaging/io.github.xmonader.kiptv.yaml`. It uses the
+A manifest is provided at `packaging/io.github.xmonader.qiptv.yaml`. It uses the
 KDE runtime and bundles libmpv + libplacebo, with ffmpeg supplied by the
 freedesktop ffmpeg-full extension.
 
@@ -23,8 +23,8 @@ freedesktop ffmpeg-full extension.
 ```bash
 flatpak install flathub org.kde.Platform//6.8 org.kde.Sdk//6.8
 flatpak-builder --user --install --force-clean build-flatpak \
-    packaging/io.github.xmonader.kiptv.yaml
-flatpak run io.github.xmonader.kiptv
+    packaging/io.github.xmonader.qiptv.yaml
+flatpak run io.github.xmonader.qiptv
 ```
 
 If a libmpv/libplacebo build fails, bump the `tag:` fields to current releases.

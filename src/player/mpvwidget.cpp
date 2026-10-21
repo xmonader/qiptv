@@ -10,7 +10,7 @@
 
 #include <clocale>
 
-namespace kiptv {
+namespace qiptv {
 
 namespace {
 constexpr quint64 kTimePos = 1;
@@ -258,4 +258,4 @@ void MpvWidget::onMpvEvents()
     }
 }
 
-} // namespace kiptv
+} // namespace qiptv

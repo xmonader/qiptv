@@ -5,7 +5,7 @@
 #include <QNetworkRequest>
 #include <QUrl>
 
-namespace kiptv {
+namespace qiptv {
 
 ImageLoader::ImageLoader(QObject *parent)
     : ImageLoader(nullptr, parent)
@@ -91,4 +91,4 @@ void ImageLoader::pumpQueue()
     }
 }
 
-} // namespace kiptv
+} // namespace qiptv

@@ -2,7 +2,7 @@
 
 #include <QtTest>
 
-using namespace kiptv;
+using namespace qiptv;
 
 // Exercises the coercion helpers against the messy shapes real Xtream
 // servers emit: quoted numbers, bare numbers, nulls, bools, empties.

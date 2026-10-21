@@ -6,7 +6,7 @@ class QComboBox;
 class QCheckBox;
 class QSpinBox;
 
-namespace kiptv {
+namespace qiptv {
 
 class Settings;
 
@@ -29,4 +29,4 @@ private:
     QSpinBox *m_volume = nullptr;
 };
 
-} // namespace kiptv
+} // namespace qiptv

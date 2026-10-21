@@ -4,7 +4,7 @@
 #include <QString>
 #include <QVector>
 
-namespace kiptv {
+namespace qiptv {
 
 /// A series from get_series (list view).
 struct Series {
@@ -57,4 +57,4 @@ struct SeriesInfo {
 /// Parse a get_series response (JSON array).
 QVector<Series> seriesListFromJson(const QByteArray &json);
 
-} // namespace kiptv
+} // namespace qiptv

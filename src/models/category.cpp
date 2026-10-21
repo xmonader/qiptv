@@ -5,7 +5,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 
-namespace kiptv {
+namespace qiptv {
 
 Category Category::fromJson(const QJsonObject &o)
 {
@@ -33,4 +33,4 @@ QVector<Category> categoriesFromJson(const QByteArray &json)
     return out;
 }
 
-} // namespace kiptv
+} // namespace qiptv

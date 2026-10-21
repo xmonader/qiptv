@@ -2,7 +2,7 @@
 
 #include <QString>
 
-namespace kiptv {
+namespace qiptv {
 
 /// A saved Xtream provider account.
 struct Profile {
@@ -18,4 +18,4 @@ struct Profile {
     }
 };
 
-} // namespace kiptv
+} // namespace qiptv

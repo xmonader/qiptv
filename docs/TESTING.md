@@ -57,4 +57,4 @@ stream URL is reachable (the `playbackError` notification reports the cause).
 - `KStatusNotifierItem` is unavailable on some hosts; the tray falls back to
   `QSystemTrayIcon`.
 - `KWallet` is optional; without it passwords are stored base64-obfuscated in
-  `kiptvrc` (obfuscation, **not** encryption).
+  `qiptvrc` (obfuscation, **not** encryption).

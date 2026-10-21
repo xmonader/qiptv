@@ -7,7 +7,7 @@
 #include <QNetworkReply>
 #include <QNetworkRequest>
 
-namespace kiptv {
+namespace qiptv {
 
 namespace {
 void registerMetaTypes()
@@ -17,13 +17,13 @@ void registerMetaTypes()
         return;
     }
     done = true;
-    qRegisterMetaType<ServerInfo>("kiptv::ServerInfo");
-    qRegisterMetaType<SeriesInfo>("kiptv::SeriesInfo");
-    qRegisterMetaType<VodInfo>("kiptv::VodInfo");
-    qRegisterMetaType<QVector<Category>>("QVector<kiptv::Category>");
-    qRegisterMetaType<QVector<LiveStream>>("QVector<kiptv::LiveStream>");
-    qRegisterMetaType<QVector<VodStream>>("QVector<kiptv::VodStream>");
-    qRegisterMetaType<QVector<Series>>("QVector<kiptv::Series>");
+    qRegisterMetaType<ServerInfo>("qiptv::ServerInfo");
+    qRegisterMetaType<SeriesInfo>("qiptv::SeriesInfo");
+    qRegisterMetaType<VodInfo>("qiptv::VodInfo");
+    qRegisterMetaType<QVector<Category>>("QVector<qiptv::Category>");
+    qRegisterMetaType<QVector<LiveStream>>("QVector<qiptv::LiveStream>");
+    qRegisterMetaType<QVector<VodStream>>("QVector<qiptv::VodStream>");
+    qRegisterMetaType<QVector<Series>>("QVector<qiptv::Series>");
 }
 } // namespace
 
@@ -167,4 +167,4 @@ void XtreamClient::fetchVodInfo(const QString &vodId)
         });
 }
 
-} // namespace kiptv
+} // namespace qiptv

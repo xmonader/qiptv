@@ -1,5 +1,5 @@
 #!/usr/bin/make -f
-# Build kiptv as a Debian package via debhelper's CMake buildsystem.
+# Build qiptv as a Debian package via debhelper's CMake buildsystem.
 
 export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 

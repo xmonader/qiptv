@@ -4,7 +4,7 @@
 #include <QString>
 #include <QVector>
 
-namespace kiptv {
+namespace qiptv {
 
 /// A live TV channel from get_live_streams.
 struct LiveStream {
@@ -23,4 +23,4 @@ struct LiveStream {
 /// Parse a get_live_streams response (JSON array).
 QVector<LiveStream> liveStreamsFromJson(const QByteArray &json);
 
-} // namespace kiptv
+} // namespace qiptv

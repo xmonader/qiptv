@@ -2,7 +2,7 @@
 
 #include <QUrlQuery>
 
-namespace kiptv {
+namespace qiptv {
 
 UrlBuilder::UrlBuilder(const QString &serverUrl, const QString &username, const QString &password)
     : m_base(normalizeBase(serverUrl))
@@ -71,4 +71,4 @@ QString UrlBuilder::seriesUrl(const QString &episodeId, const QString &ext) cons
     return streamUrl(QStringLiteral("series"), episodeId + QLatin1Char('.') + e);
 }
 
-} // namespace kiptv
+} // namespace qiptv

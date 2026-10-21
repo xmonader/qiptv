@@ -13,7 +13,7 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 
-namespace kiptv {
+namespace qiptv {
 
 namespace {
 constexpr int EpisodeIndexRole = Qt::UserRole + 1; // index into m_info.episodes
@@ -143,4 +143,4 @@ void SeriesDetail::onImageLoaded(const QString &url, const QImage &image)
     }
 }
 
-} // namespace kiptv
+} // namespace qiptv

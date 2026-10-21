@@ -4,7 +4,7 @@
 #include <QString>
 #include <QVector>
 
-namespace kiptv {
+namespace qiptv {
 
 /// A movie from get_vod_streams (list view).
 struct VodStream {
@@ -42,4 +42,4 @@ struct VodInfo {
 /// Parse a get_vod_streams response (JSON array).
 QVector<VodStream> vodStreamsFromJson(const QByteArray &json);
 
-} // namespace kiptv
+} // namespace qiptv

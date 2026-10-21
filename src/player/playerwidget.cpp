@@ -13,7 +13,7 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 
-namespace kiptv {
+namespace qiptv {
 
 namespace {
 QString formatTime(double seconds)
@@ -311,4 +311,4 @@ void PlayerWidget::keyPressEvent(QKeyEvent *event)
     event->accept();
 }
 
-} // namespace kiptv
+} // namespace qiptv

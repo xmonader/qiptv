@@ -8,12 +8,12 @@
 
 #include <memory>
 
-namespace kiptv {
+namespace qiptv {
 
 /**
  * Persists provider profiles via QSettings (INI format).
  *
- * Layout in the config file (~/.config/kiptvrc, shared with Settings):
+ * Layout in the config file (~/.config/qiptvrc, shared with Settings):
  *   [Profiles]      order=id1,id2,...
  *   [Profile-<id>]  Name=, Server=, Username=, Password=
  *   LastProfile=<id>  (top-level key; QSettings stores root keys in the
@@ -28,7 +28,7 @@ namespace kiptv {
  */
 class ProfileStore {
 public:
-    /// Default: standard kiptvrc location. Pass an absolute path for tests.
+    /// Default: standard qiptvrc location. Pass an absolute path for tests.
     explicit ProfileStore(const QString &configPath = QString());
 
     QVector<Profile> profiles() const;
@@ -52,4 +52,4 @@ private:
     std::unique_ptr<QSettings> m_config; ///< value() is const-safe; writers go through get()
 };
 
-} // namespace kiptv
+} // namespace qiptv

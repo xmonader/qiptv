@@ -5,7 +5,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 
-namespace kiptv {
+namespace qiptv {
 
 LiveStream LiveStream::fromJson(const QJsonObject &o)
 {
@@ -38,4 +38,4 @@ QVector<LiveStream> liveStreamsFromJson(const QByteArray &json)
     return out;
 }
 
-} // namespace kiptv
+} // namespace qiptv

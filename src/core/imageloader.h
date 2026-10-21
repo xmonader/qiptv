@@ -8,7 +8,7 @@
 
 class QNetworkAccessManager;
 
-namespace kiptv {
+namespace qiptv {
 
 /**
  * Async image fetcher with an in-memory cache and in-flight de-duplication.
@@ -57,4 +57,4 @@ private:
     int m_timeoutMs = 15000;
 };
 
-} // namespace kiptv
+} // namespace qiptv

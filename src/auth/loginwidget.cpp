@@ -9,7 +9,7 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 
-namespace kiptv {
+namespace qiptv {
 
 LoginWidget::LoginWidget(QWidget *parent)
     : QWidget(parent)
@@ -157,4 +157,4 @@ void LoginWidget::clearError()
     m_errorLabel->hide();
 }
 
-} // namespace kiptv
+} // namespace qiptv

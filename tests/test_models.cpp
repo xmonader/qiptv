@@ -10,7 +10,7 @@
 #include <QJsonObject>
 #include <QtTest>
 
-using namespace kiptv;
+using namespace qiptv;
 
 // NOTE: do not put "//" inside R"(...)" raw strings here. This Qt moc version
 // mis-lexes "//" within a raw string as a line comment and silently drops the

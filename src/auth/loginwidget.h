@@ -11,7 +11,7 @@ class QCheckBox;
 class QPushButton;
 class QLabel;
 
-namespace kiptv {
+namespace qiptv {
 
 /**
  * Login form: pick a saved profile or enter new credentials.
@@ -36,7 +36,7 @@ public:
     void clearError();
 
 Q_SIGNALS:
-    void loginRequested(const kiptv::Profile &profile);
+    void loginRequested(const qiptv::Profile &profile);
 
 private:
     void onProfileSelected(int index);
@@ -55,4 +55,4 @@ private:
     QVector<Profile> m_profiles;
 };
 
-} // namespace kiptv
+} // namespace qiptv

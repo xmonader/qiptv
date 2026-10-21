@@ -5,7 +5,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 
-namespace kiptv {
+namespace qiptv {
 
 namespace {
 /// stream_icon and cover are interchangeable poster fields; prefer whichever
@@ -97,4 +97,4 @@ VodInfo VodInfo::fromJson(const QByteArray &json)
     return v;
 }
 
-} // namespace kiptv
+} // namespace qiptv

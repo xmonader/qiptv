@@ -1,10 +1,10 @@
-# Goal: kiptv — Native KDE IPTV Application (C++)
+# Goal: qiptv — Native KDE IPTV Application (C++)
 
 **Created**: 2026-05-29T00:00:00Z
 **Status**: implementation-complete (final live-provider E2E pending — see blocker)
 
 ## Objective
-Build kiptv, a native KDE desktop application in **C++** for watching IPTV
+Build qiptv, a native KDE desktop application in **C++** for watching IPTV
 content delivered via the **Xtream Codes API**. The user logs in with a server
 URL, username, and password; the app browses Live TV, Movies (VOD), and Series
 by category, plays streams with **libmpv**, and persists multiple provider

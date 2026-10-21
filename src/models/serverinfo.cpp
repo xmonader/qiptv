@@ -5,7 +5,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 
-namespace kiptv {
+namespace qiptv {
 
 UserInfo UserInfo::fromJson(const QJsonObject &o)
 {
@@ -60,4 +60,4 @@ ServerInfo ServerInfo::fromJson(const QByteArray &json)
     return info;
 }
 
-} // namespace kiptv
+} // namespace qiptv

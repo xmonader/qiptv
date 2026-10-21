@@ -4,7 +4,7 @@
 #include <QString>
 #include <QVector>
 
-namespace kiptv {
+namespace qiptv {
 
 /// A content category (live / VOD / series share this shape).
 struct Category {
@@ -18,4 +18,4 @@ struct Category {
 /// Parse a get_*_categories response (a JSON array of category objects).
 QVector<Category> categoriesFromJson(const QByteArray &json);
 
-} // namespace kiptv
+} // namespace qiptv

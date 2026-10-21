@@ -4,7 +4,7 @@
 
 #include <QtGlobal>
 
-namespace kiptv {
+namespace qiptv {
 
 namespace {
 constexpr char kPlayback[] = "Playback";
@@ -13,10 +13,10 @@ constexpr char kUi[] = "UI";
 
 Settings::Settings(const QString &configPath)
 {
-    // Shares the legacy kiptvrc file with ProfileStore (same path logic).
+    // Shares the legacy qiptvrc file with ProfileStore (same path logic).
     const QString path = configPath.isEmpty()
         ? QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation)
-              + QStringLiteral("/kiptvrc")
+              + QStringLiteral("/qiptvrc")
         : configPath;
     m_config = std::make_unique<QSettings>(path, QSettings::IniFormat);
 }
@@ -74,4 +74,4 @@ void Settings::save()
     m_config->sync();
 }
 
-} // namespace kiptv
+} // namespace qiptv

@@ -3,7 +3,7 @@
 #include <QString>
 #include <QUrl>
 
-namespace kiptv {
+namespace qiptv {
 
 /**
  * Builds Xtream Codes URLs from a server base + credentials.
@@ -44,4 +44,4 @@ private:
     QString m_password;
 };
 
-} // namespace kiptv
+} // namespace qiptv

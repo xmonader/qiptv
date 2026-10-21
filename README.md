@@ -1,4 +1,4 @@
-# kiptv
+# qiptv
 
 A native **Qt** desktop IPTV client written in **C++**, targeting the
 **Xtream Codes** API with **libmpv** playback.
@@ -26,7 +26,7 @@ Movies (VOD) and Series, and play them with hardware-accelerated libmpv.
 | UI | Qt 6 Widgets |
 | Playback | libmpv |
 | HTTP / JSON | Qt Network + Qt JSON |
-| Storage | QSettings INI (~/.config/kiptvrc; passwords obfuscated) |
+| Storage | QSettings INI (~/.config/qiptvrc; passwords obfuscated) |
 
 ## Build & run
 
@@ -46,20 +46,20 @@ The `Makefile` is a thin wrapper over CMake; the build tree lives in `build/`.
 
 ```bash
 make validate   # check the .desktop and AppStream metadata
-make deb         # build dist/kiptv_<version>_amd64.deb
+make deb         # build dist/qiptv_<version>_amd64.deb
 make deb-lint    # run lintian on the package (optional tool)
 ```
 
 `make deb` runs `dpkg-buildpackage` and relocates the package into `dist/`
 (dpkg writes to the parent directory by default; the target moves it back in).
 Runtime dependencies are derived automatically from the binary's linkage.
-Install with `apt install dist/kiptv_<version>_amd64.deb`. Bump the
+Install with `apt install dist/qiptv_<version>_amd64.deb`. Bump the
 version in `debian/changelog` (e.g. `dch -v`) — that, not `CMakeLists.txt`,
 drives the package version.
 
 ## Usage
 
-1. Launch kiptv. On first run you'll see the login screen.
+1. Launch qiptv. On first run you'll see the login screen.
 2. Enter your provider **Server URL** (e.g. `http://example.com:8080`),
    **Username** and **Password**. Keep "Save this profile" checked to store it.
 3. After authentication, pick **Live TV**, **Movies** or **Series** in the left
@@ -97,5 +97,5 @@ MIT. See [LICENSE](LICENSE).
 
 ## Disclaimer
 
-For use with IPTV services you are legally entitled to access. kiptv ships no
+For use with IPTV services you are legally entitled to access. qiptv ships no
 content and no provider credentials.

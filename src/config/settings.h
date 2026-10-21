@@ -5,10 +5,10 @@
 
 #include <memory>
 
-namespace kiptv {
+namespace qiptv {
 
 /**
- * Application preferences, persisted via QSettings/INI (shares kiptvrc with
+ * Application preferences, persisted via QSettings/INI (shares qiptvrc with
  * the profile store but uses its own groups). Plain getters/setters keep it
  * trivially testable; call save() to flush.
  */
@@ -34,4 +34,4 @@ private:
     std::unique_ptr<QSettings> m_config;
 };
 
-} // namespace kiptv
+} // namespace qiptv

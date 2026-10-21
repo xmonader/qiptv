@@ -7,7 +7,7 @@
 #include <QTcpSocket>
 #include <QtTest>
 
-using namespace kiptv;
+using namespace qiptv;
 
 // Minimal canned-response HTTP server. Routes by the "action" query param
 // ("" == auth). Lets us drive XtreamClient end to end without a real provider.

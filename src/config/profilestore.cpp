@@ -4,7 +4,7 @@
 
 #include <QUuid>
 
-namespace kiptv {
+namespace qiptv {
 
 namespace {
 constexpr char kProfilesGroup[] = "Profiles";
@@ -20,7 +20,7 @@ QStringList stringListValue(const QSettings *config, const QString &key)
 {
     // KConfig and QSettings both persist lists as comma-separated entries, but
     // the QVariant may arrive as either QStringList or a plain string depending
-    // on which library wrote the file. Handle both so existing kiptvrc files
+    // on which library wrote the file. Handle both so existing qiptvrc files
     // keep working.
     const QVariant v = config->value(key);
     if (v.typeId() == QMetaType::QStringList) {
@@ -41,12 +41,12 @@ QString deobfuscate(const QString &s)
 
 ProfileStore::ProfileStore(const QString &configPath)
 {
-    // Same default file KConfig used: $XDG_CONFIG_HOME/kiptvrc. QSettings'
+    // Same default file KConfig used: $XDG_CONFIG_HOME/qiptvrc. QSettings'
     // org/app defaults would nest it under a subdirectory, so build the path
     // explicitly.
     const QString path = configPath.isEmpty()
         ? QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation)
-              + QStringLiteral("/kiptvrc")
+              + QStringLiteral("/qiptvrc")
         : configPath;
     m_config = std::make_unique<QSettings>(path, QSettings::IniFormat);
 }
@@ -144,4 +144,4 @@ void ProfileStore::save()
     m_config->sync();
 }
 
-} // namespace kiptv
+} // namespace qiptv

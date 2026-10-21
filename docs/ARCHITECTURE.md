@@ -1,18 +1,18 @@
 # Architecture
 
-kiptv is layered so that all non-UI logic lives in a static library
-(`kiptv_core`) that the application and the tests both link. UI code lives only
-in the `kiptv` executable.
+qiptv is layered so that all non-UI logic lives in a static library
+(`qiptv_core`) that the application and the tests both link. UI code lives only
+in the `qiptv` executable.
 
 ```
-            ┌────────────── kiptv (executable) ──────────────┐
+            ┌────────────── qiptv (executable) ──────────────┐
             │  app/      MainWindow, SettingsDialog, main      │
             │  auth/     LoginWidget                           │
             │  browse/   BrowseWidget, SeriesDetail            │
             │  player/   MpvWidget (libmpv), PlayerWidget      │
             └───────────────────┬─────────────────────────────┘
                                 │ depends on
-            ┌───────────────────▼──── kiptv_core ─────────────┐
+            ┌───────────────────▼──── qiptv_core ─────────────┐
             │  api/      UrlBuilder, XtreamClient (QObject)     │
             │  models/   Category, ServerInfo, LiveStream, …    │
             │  core/     parse (coercion), ImageLoader          │

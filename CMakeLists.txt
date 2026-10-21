@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(kiptv VERSION 0.1.0 LANGUAGES CXX)
+project(qiptv VERSION 0.1.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -25,8 +25,8 @@ add_compile_definitions(QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII QT_NO_CAST_FRO
 
 enable_testing()
 
-# Source lists grow per phase. kiptv_core holds testable, UI-free logic.
-set(KIPTV_CORE_SOURCES
+# Source lists grow per phase. qiptv_core holds testable, UI-free logic.
+set(QIPTV_CORE_SOURCES
     src/core/parse.cpp
     src/core/imageloader.cpp
     src/api/urlbuilder.cpp
@@ -40,15 +40,15 @@ set(KIPTV_CORE_SOURCES
     src/config/settings.cpp
 )
 
-add_library(kiptv_core STATIC ${KIPTV_CORE_SOURCES})
-target_include_directories(kiptv_core PUBLIC ${CMAKE_SOURCE_DIR}/src)
-target_link_libraries(kiptv_core PUBLIC
+add_library(qiptv_core STATIC ${QIPTV_CORE_SOURCES})
+target_include_directories(qiptv_core PUBLIC ${CMAKE_SOURCE_DIR}/src)
+target_link_libraries(qiptv_core PUBLIC
     Qt6::Core
     Qt6::Gui
     Qt6::Network
 )
 
-set(KIPTV_APP_SOURCES
+set(QIPTV_APP_SOURCES
     src/main.cpp
     src/app/mainwindow.cpp
     src/app/settingsdialog.cpp
@@ -59,18 +59,18 @@ set(KIPTV_APP_SOURCES
     src/player/playerwidget.cpp
 )
 
-add_executable(kiptv ${KIPTV_APP_SOURCES})
-target_link_libraries(kiptv PRIVATE
-    kiptv_core
+add_executable(qiptv ${QIPTV_APP_SOURCES})
+target_link_libraries(qiptv PRIVATE
+    qiptv_core
     Qt6::Widgets
     Qt6::OpenGLWidgets
     PkgConfig::MPV
 )
 
-install(TARGETS kiptv RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-install(FILES data/io.github.xmonader.kiptv.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
-install(FILES data/io.github.xmonader.kiptv.metainfo.xml DESTINATION ${CMAKE_INSTALL_DATADIR}/metainfo)
-install(FILES data/icons/io.github.xmonader.kiptv.svg
+install(TARGETS qiptv RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(FILES data/io.github.xmonader.qiptv.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
+install(FILES data/io.github.xmonader.qiptv.metainfo.xml DESTINATION ${CMAKE_INSTALL_DATADIR}/metainfo)
+install(FILES data/icons/io.github.xmonader.qiptv.svg
         DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable/apps)
 
 add_subdirectory(tests)
