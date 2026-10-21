@@ -165,9 +165,10 @@ Stream URL patterns:
   KGlobalAccel media keys, KNotification, settings dialog, close-to-tray,
   volume persistence), packaging (Flatpak manifest, desktop entry, AppStream
   metainfo) and docs. Clean rebuild + 9 CTest suites green.
-- **BLOCKER (escalated):** Final end-to-end *playback* verification needs a
-  real Xtream Codes account and a desktop session with a GPU — neither exists
-  in this headless dev environment. All code builds, starts cleanly (offscreen
-  smoke), and the client request/parse paths are covered by mock-HTTP tests.
-  Manual steps are in docs/TESTING.md; run them with a live account to close
-  the last criterion.
+- **BLOCKER (resolved 2026-10-21):** Live E2E ran against a real provider.
+  The actual blocker was HTTP 403s: the provider's nginx rejects requests
+  without a User-Agent, and both QNetworkAccessManager (no default UA) and
+  mpv were sending none. Fixed in 5d53aba/fafb48e (kUserAgent in client +
+  mpv). Verified live: auto-login, categories, 5,469-channel grid with
+  posters on native Wayland; libmpv decodes a live stream. Remaining manual
+  step: confirm in-widget video render (double-click a channel).
