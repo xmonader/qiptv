@@ -1,5 +1,7 @@
 #include "player/mpvwidget.h"
 
+#include "core/useragent.h"
+
 #include <mpv/client.h>
 #include <mpv/render_gl.h>
 
@@ -42,6 +44,8 @@ MpvWidget::MpvWidget(QWidget *parent)
     // Network resilience for live IPTV streams.
     mpv_set_option_string(m_mpv, "cache", "yes");
     mpv_set_option_string(m_mpv, "demuxer-max-bytes", "50MiB");
+    // Same reason as the HTTP client: no UA -> provider 403s the stream.
+    mpv_set_option_string(m_mpv, "useragent", kUserAgent);
 
     if (mpv_initialize(m_mpv) < 0) {
         mpv_destroy(m_mpv);
