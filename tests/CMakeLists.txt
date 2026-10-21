@@ -2,7 +2,7 @@
 
 # Relax the strict implicit-cast guards for test code so fixtures can use bare
 # string/byte-array literals. Production code keeps the guards (set globally by
-# KDECompilerSettings).
+# the top-level CMakeLists.txt).
 remove_definitions(-DQT_NO_CAST_FROM_ASCII -DQT_NO_CAST_TO_ASCII -DQT_NO_CAST_FROM_BYTEARRAY)
 
 add_executable(test_parse test_parse.cpp)
@@ -36,6 +36,6 @@ set_tests_properties(imageloader PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscre
 
 # GUI test: compiles the widget directly and runs under the offscreen platform.
 add_executable(test_loginwidget test_loginwidget.cpp ${CMAKE_SOURCE_DIR}/src/auth/loginwidget.cpp)
-target_link_libraries(test_loginwidget PRIVATE kiptv_core Qt6::Test Qt6::Widgets KF6::I18n)
+target_link_libraries(test_loginwidget PRIVATE kiptv_core Qt6::Test Qt6::Widgets)
 add_test(NAME loginwidget COMMAND test_loginwidget)
 set_tests_properties(loginwidget PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")

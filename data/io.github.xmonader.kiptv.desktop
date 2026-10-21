@@ -6,6 +6,6 @@ Comment=Watch Xtream Codes IPTV live TV, movies and series
 Exec=kiptv
 Icon=io.github.xmonader.kiptv
 Terminal=false
-Categories=Qt;KDE;AudioVideo;Player;TV;
+Categories=Qt;AudioVideo;Player;TV;
 Keywords=IPTV;Xtream;TV;Stream;Live;VOD;
 StartupNotify=true

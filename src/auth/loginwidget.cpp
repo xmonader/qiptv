@@ -1,6 +1,5 @@
 #include "auth/loginwidget.h"
 
-#include <KLocalizedString>
 
 #include <QCheckBox>
 #include <QComboBox>
@@ -18,27 +17,27 @@ LoginWidget::LoginWidget(QWidget *parent)
     auto *outer = new QVBoxLayout(this);
     outer->addStretch();
 
-    auto *title = new QLabel(i18n("<h2>Connect to your IPTV provider</h2>"), this);
+    auto *title = new QLabel(tr("<h2>Connect to your IPTV provider</h2>"), this);
     title->setAlignment(Qt::AlignCenter);
     outer->addWidget(title);
 
     m_profileBox = new QComboBox(this);
     m_nameEdit = new QLineEdit(this);
-    m_nameEdit->setPlaceholderText(i18n("e.g. Home"));
+    m_nameEdit->setPlaceholderText(tr("e.g. Home"));
     m_serverEdit = new QLineEdit(this);
-    m_serverEdit->setPlaceholderText(i18n("http://example.com:8080"));
+    m_serverEdit->setPlaceholderText(tr("http://example.com:8080"));
     m_userEdit = new QLineEdit(this);
     m_passEdit = new QLineEdit(this);
     m_passEdit->setEchoMode(QLineEdit::Password);
-    m_saveCheck = new QCheckBox(i18n("Save this profile"), this);
+    m_saveCheck = new QCheckBox(tr("Save this profile"), this);
     m_saveCheck->setChecked(true);
 
     auto *form = new QFormLayout;
-    form->addRow(i18n("Profile:"), m_profileBox);
-    form->addRow(i18n("Name:"), m_nameEdit);
-    form->addRow(i18n("Server URL:"), m_serverEdit);
-    form->addRow(i18n("Username:"), m_userEdit);
-    form->addRow(i18n("Password:"), m_passEdit);
+    form->addRow(tr("Profile:"), m_profileBox);
+    form->addRow(tr("Name:"), m_nameEdit);
+    form->addRow(tr("Server URL:"), m_serverEdit);
+    form->addRow(tr("Username:"), m_userEdit);
+    form->addRow(tr("Password:"), m_passEdit);
     form->addRow(QString(), m_saveCheck);
 
     // Keep the form from stretching edge to edge on wide windows.
@@ -58,7 +57,7 @@ LoginWidget::LoginWidget(QWidget *parent)
     m_errorLabel->hide();
     outer->addWidget(m_errorLabel);
 
-    m_loginButton = new QPushButton(i18n("Log in"), this);
+    m_loginButton = new QPushButton(tr("Log in"), this);
     m_loginButton->setDefault(true);
     auto *btnWrap = new QHBoxLayout;
     btnWrap->addStretch();
@@ -77,7 +76,7 @@ void LoginWidget::setProfiles(const QVector<Profile> &profiles, const QString &s
     m_profiles = profiles;
     QSignalBlocker block(m_profileBox);
     m_profileBox->clear();
-    m_profileBox->addItem(i18n("New profile…"), QString());
+    m_profileBox->addItem(tr("New profile…"), QString());
     int selectIndex = 0;
     for (const Profile &p : profiles) {
         m_profileBox->addItem(p.name.isEmpty() ? p.serverUrl : p.name, p.id);
@@ -133,7 +132,7 @@ void LoginWidget::onLoginClicked()
 {
     const Profile p = currentInput();
     if (!p.isValid()) {
-        showError(i18n("Please enter a server URL and username."));
+        showError(tr("Please enter a server URL and username."));
         return;
     }
     clearError();
@@ -143,7 +142,7 @@ void LoginWidget::onLoginClicked()
 void LoginWidget::setBusy(bool busy)
 {
     m_loginButton->setEnabled(!busy);
-    m_loginButton->setText(busy ? i18n("Connecting…") : i18n("Log in"));
+    m_loginButton->setText(busy ? tr("Connecting…") : tr("Log in"));
 }
 
 void LoginWidget::showError(const QString &message)

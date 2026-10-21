@@ -23,7 +23,7 @@ MpvWidget::MpvWidget(QWidget *parent)
 {
     setMinimumSize(320, 180);
 
-    // libmpv requires the C numeric locale; Qt/KDE set the user's locale
+    // libmpv requires the C numeric locale; Qt applies the user's locale
     // (e.g. comma decimals), which mpv warns about and which breaks parsing.
     std::setlocale(LC_NUMERIC, "C");
 

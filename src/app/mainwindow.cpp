@@ -9,19 +9,17 @@
 #include "player/playerwidget.h"
 #include "models/serverinfo.h"
 
-#include <KActionCollection>
-#include <KGlobalAccel>
-#include <KLocalizedString>
-#include <KMessageBox>
-#include <KNotification>
-#include <KStandardAction>
-
 #include <QAction>
 #include <QApplication>
 #include <QCloseEvent>
+#include <QKeySequence>
 #include <QMenu>
+#include <QMenuBar>
+#include <QMessageBox>
+#include <QShortcut>
 #include <QStackedWidget>
 #include <QSystemTrayIcon>
+#include <QToolBar>
 
 #include <functional>
 #include <vector>
@@ -29,7 +27,7 @@
 namespace kiptv {
 
 MainWindow::MainWindow(QWidget *parent)
-    : KXmlGuiWindow(parent)
+    : QMainWindow(parent)
 {
     m_client = new XtreamClient(this);
     m_images = new ImageLoader(this);
@@ -55,9 +53,8 @@ MainWindow::MainWindow(QWidget *parent)
     });
 
     setupActions();
-    setupGUI(Default, QStringLiteral("kiptvui.rc"));
     setupSystemTray();
-    setupGlobalShortcuts();
+    setupMediaKeys();
     applySettings();
 
     m_login->setProfiles(m_store.profiles(), m_store.lastUsedId());
@@ -68,17 +65,43 @@ MainWindow::~MainWindow() = default;
 
 void MainWindow::setupActions()
 {
-    KStandardAction::quit(this, [this] {
+    auto *quit = new QAction(QIcon::fromTheme(QStringLiteral("application-exit")),
+                             tr("Quit"), this);
+    quit->setObjectName(QStringLiteral("quit"));
+    quit->setShortcut(QKeySequence::Quit);
+    connect(quit, &QAction::triggered, this, [this] {
         m_forceQuit = true;
         close();
-    }, actionCollection());
+    });
+    addAction(quit);
 
-    auto *logout = actionCollection()->addAction(QStringLiteral("logout"));
-    logout->setText(i18n("Switch Profile…"));
-    logout->setIcon(QIcon::fromTheme(QStringLiteral("system-switch-user")));
+    auto *logout = new QAction(QIcon::fromTheme(QStringLiteral("system-switch-user")),
+                               tr("Switch Profile…"), this);
+    logout->setObjectName(QStringLiteral("logout"));
     connect(logout, &QAction::triggered, this, &MainWindow::showLogin);
+    addAction(logout);
 
-    KStandardAction::preferences(this, &MainWindow::openSettings, actionCollection());
+    auto *preferences = new QAction(QIcon::fromTheme(QStringLiteral("preferences-system")),
+                                    tr("Preferences"), this);
+    preferences->setObjectName(QStringLiteral("preferences"));
+    preferences->setShortcut(QKeySequence::Preferences);
+    connect(preferences, &QAction::triggered, this, &MainWindow::openSettings);
+    addAction(preferences);
+
+    // Menus replace the KXmlGui kiptvui.rc layout (File > Switch Profile,
+    // toolbar entry) with the equivalent QMainWindow structure.
+    auto *fileMenu = menuBar()->addMenu(tr("&File"));
+    fileMenu->addAction(logout);
+    fileMenu->addSeparator();
+    fileMenu->addAction(quit);
+
+    auto *settingsMenu = menuBar()->addMenu(tr("&Settings"));
+    settingsMenu->addAction(preferences);
+
+    auto *toolBar = addToolBar(tr("Main Toolbar"));
+    toolBar->setObjectName(QStringLiteral("mainToolBar"));
+    toolBar->setMovable(false);
+    toolBar->addAction(logout);
 }
 
 void MainWindow::openSettings()
@@ -110,7 +133,7 @@ PlayerWidget *MainWindow::ensurePlayer()
     // by vo=libmpv in MpvWidget plus show()-before-play() in onPlayRequested.
     m_player = new PlayerWidget(this);
     m_player->setWindowFlag(Qt::Window);
-    m_player->setWindowTitle(i18nc("@title:window", "kiptv — Player"));
+    m_player->setWindowTitle(tr("kiptv — Player"));
     m_player->resize(960, 540);
 
     connect(m_player, &PlayerWidget::backRequested, this, [this] {
@@ -124,8 +147,8 @@ PlayerWidget *MainWindow::ensurePlayer()
             [this](int v) { m_settings.setLastVolume(v); });
     // Playback errors are informational; just report them.
     connect(m_player, &PlayerWidget::errorOccurred, this, [this](const QString &msg) {
-        notify(QStringLiteral("playbackError"), i18n("Playback error"), msg);
-        KMessageBox::error(this, msg, i18nc("@title:window", "Playback"));
+        notify(tr("Playback error"), msg);
+        QMessageBox::critical(this, tr("Playback"), msg);
     });
 
     m_player->setInitialVolume(m_settings.lastVolume());
@@ -141,7 +164,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
         return;
     }
     m_settings.save(); // persist last volume and any pending prefs
-    KXmlGuiWindow::closeEvent(event);
+    QMainWindow::closeEvent(event);
 }
 
 void MainWindow::setupSystemTray()
@@ -151,10 +174,10 @@ void MainWindow::setupSystemTray()
     }
     m_tray = new QSystemTrayIcon(this);
     m_tray->setIcon(QIcon::fromTheme(QStringLiteral("video-television")));
-    m_tray->setToolTip(i18n("kiptv"));
+    m_tray->setToolTip(tr("kiptv"));
 
     auto *menu = new QMenu(this);
-    auto *toggle = menu->addAction(i18n("Show/Hide Window"));
+    auto *toggle = menu->addAction(tr("Show/Hide Window"));
     connect(toggle, &QAction::triggered, this, [this] {
         setVisible(!isVisible());
         if (isVisible()) {
@@ -163,14 +186,14 @@ void MainWindow::setupSystemTray()
         }
     });
     auto *playpause = menu->addAction(QIcon::fromTheme(QStringLiteral("media-playback-start")),
-                                      i18n("Play/Pause"));
+                                      tr("Play/Pause"));
     connect(playpause, &QAction::triggered, this, [this] {
         if (m_player) {
             m_player->togglePause();
         }
     });
     menu->addSeparator();
-    auto *quit = menu->addAction(QIcon::fromTheme(QStringLiteral("application-exit")), i18n("Quit"));
+    auto *quit = menu->addAction(QIcon::fromTheme(QStringLiteral("application-exit")), tr("Quit"));
     connect(quit, &QAction::triggered, this, [this] {
         m_forceQuit = true;
         qApp->quit();
@@ -189,39 +212,36 @@ void MainWindow::setupSystemTray()
     m_tray->show();
 }
 
-void MainWindow::setupGlobalShortcuts()
+void MainWindow::setupMediaKeys()
 {
-    // Bind multimedia keys to playback control via KGlobalAccel. Registration
-    // is a no-op (with a warning) where the global-accel daemon is absent.
+    // Bind multimedia keys to playback control. Qt has no API for system-wide
+    // key grabbing (KGlobalAccel delegated that to the desktop daemon), so
+    // these are application-scope shortcuts: they fire whenever any kiptv
+    // window has focus, not while other apps are in the foreground.
     struct Binding {
-        const char *name;
-        QString text;
         Qt::Key key;
         std::function<void()> slot;
     };
     const std::vector<Binding> bindings = {
-        {"media_playpause", i18n("Play/Pause"), Qt::Key_MediaTogglePlayPause,
-         [this] { if (m_player) m_player->togglePause(); }},
-        {"media_stop", i18n("Stop"), Qt::Key_MediaStop, [this] { if (m_player) m_player->stop(); }},
-        {"media_next", i18n("Next Channel"), Qt::Key_MediaNext, [this] { m_browse->zap(1); }},
-        {"media_previous", i18n("Previous Channel"), Qt::Key_MediaPrevious,
-         [this] { m_browse->zap(-1); }},
+        {Qt::Key_MediaTogglePlayPause, [this] { if (m_player) m_player->togglePause(); }},
+        {Qt::Key_MediaStop, [this] { if (m_player) m_player->stop(); }},
+        {Qt::Key_MediaNext, [this] { m_browse->zap(1); }},
+        {Qt::Key_MediaPrevious, [this] { m_browse->zap(-1); }},
     };
     for (const auto &b : bindings) {
-        auto *action = new QAction(b.text, this);
-        action->setObjectName(QString::fromLatin1(b.name));
-        connect(action, &QAction::triggered, this, b.slot);
-        KGlobalAccel::setGlobalShortcut(action, QList<QKeySequence>{QKeySequence(b.key)});
+        auto *shortcut = new QShortcut(QKeySequence(b.key), this);
+        shortcut->setContext(Qt::ApplicationShortcut);
+        connect(shortcut, &QShortcut::activated, this, b.slot);
     }
 }
 
-void MainWindow::notify(const QString &eventId, const QString &title, const QString &text)
+void MainWindow::notify(const QString &title, const QString &text)
 {
-    KNotification *n = new KNotification(eventId);
-    n->setComponentName(QStringLiteral("kiptv"));
-    n->setTitle(title);
-    n->setText(text);
-    n->sendEvent();
+    // Desktop notifications ride on the tray icon's D-Bus backend; without a
+    // tray there is no Qt-only notification channel, so drop the message.
+    if (m_tray && m_tray->isVisible()) {
+        m_tray->showMessage(title, text, QSystemTrayIcon::Information, 5000);
+    }
 }
 
 void MainWindow::tryAutoLogin()
@@ -256,7 +276,7 @@ void MainWindow::onAuthenticated(const ServerInfo &info)
         m_login->setProfiles(m_store.profiles(), id);
     }
 
-    setWindowTitle(i18nc("@title:window", "kiptv — %1", info.user.username));
+    setWindowTitle(tr("kiptv — %1").arg(info.user.username));
     m_browse->reload();
     m_stack->setCurrentWidget(m_browse);
 }
@@ -274,9 +294,9 @@ void MainWindow::onPlayRequested(const QString &url, const QString &title)
     player->raise();
     player->activateWindow();
     player->play(url, title);
-    notify(QStringLiteral("nowPlaying"), i18n("Now playing"), title);
+    notify(tr("Now playing"), title);
     if (m_tray) {
-        m_tray->setToolTip(i18n("kiptv — %1", title));
+        m_tray->setToolTip(tr("kiptv — %1").arg(title));
     }
 }
 

@@ -3,7 +3,6 @@
 #include "api/xtreamclient.h"
 #include "core/imageloader.h"
 
-#include <KLocalizedString>
 
 #include <QHBoxLayout>
 #include <QIcon>
@@ -44,15 +43,15 @@ BrowseWidget::BrowseWidget(XtreamClient *client, ImageLoader *images, QWidget *p
 {
     m_sections = new QListWidget(this);
     m_sections->setMaximumWidth(160);
-    m_sections->addItem(new QListWidgetItem(QIcon::fromTheme(QStringLiteral("video-television")), i18n("Live TV")));
-    m_sections->addItem(new QListWidgetItem(QIcon::fromTheme(QStringLiteral("video-x-generic")), i18n("Movies")));
-    m_sections->addItem(new QListWidgetItem(QIcon::fromTheme(QStringLiteral("media-playlist-shuffle")), i18n("Series")));
+    m_sections->addItem(new QListWidgetItem(QIcon::fromTheme(QStringLiteral("video-television")), tr("Live TV")));
+    m_sections->addItem(new QListWidgetItem(QIcon::fromTheme(QStringLiteral("video-x-generic")), tr("Movies")));
+    m_sections->addItem(new QListWidgetItem(QIcon::fromTheme(QStringLiteral("media-playlist-shuffle")), tr("Series")));
 
     m_categories = new QListWidget(this);
     m_categories->setMaximumWidth(240);
 
     m_search = new QLineEdit(this);
-    m_search->setPlaceholderText(i18n("Filter…"));
+    m_search->setPlaceholderText(tr("Filter…"));
     m_search->setClearButtonEnabled(true);
 
     m_content = new QListWidget(this);
@@ -116,7 +115,7 @@ BrowseWidget::BrowseWidget(XtreamClient *client, ImageLoader *images, QWidget *p
                 m_images->load(s.streamIcon);
             }
         }
-        m_status->setText(i18np("%1 channel", "%1 channels", streams.size()));
+        m_status->setText(tr("%n channel(s)", nullptr, streams.size()));
         applyFilter(m_search->text());
     });
 
@@ -136,7 +135,7 @@ BrowseWidget::BrowseWidget(XtreamClient *client, ImageLoader *images, QWidget *p
                 m_images->load(s.icon);
             }
         }
-        m_status->setText(i18np("%1 movie", "%1 movies", streams.size()));
+        m_status->setText(tr("%n movie(s)", nullptr, streams.size()));
         applyFilter(m_search->text());
     });
 
@@ -155,7 +154,7 @@ BrowseWidget::BrowseWidget(XtreamClient *client, ImageLoader *images, QWidget *p
                 m_images->load(s.cover);
             }
         }
-        m_status->setText(i18np("%1 series", "%1 series", series.size()));
+        m_status->setText(tr("%n series", nullptr, series.size()));
         applyFilter(m_search->text());
     });
 
@@ -206,7 +205,7 @@ void BrowseWidget::onSectionChanged()
 void BrowseWidget::populateCategories(const QVector<Category> &cats)
 {
     m_categories->clear();
-    auto *all = new QListWidgetItem(i18n("All"));
+    auto *all = new QListWidgetItem(tr("All"));
     all->setData(Qt::UserRole, QString()); // empty id == all
     m_categories->addItem(all);
     for (const Category &c : cats) {

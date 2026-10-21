@@ -2,7 +2,6 @@
 
 #include "core/useragent.h"
 
-#include <KLocalizedString>
 
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
@@ -48,7 +47,7 @@ void XtreamClient::setCredentials(const QString &serverUrl, const QString &usern
 void XtreamClient::get(const QUrl &url, Handler onSuccess)
 {
     if (!m_urls.isValid()) {
-        Q_EMIT errorOccurred(i18n("No server configured."));
+        Q_EMIT errorOccurred(tr("No server configured."));
         return;
     }
 
@@ -73,13 +72,13 @@ void XtreamClient::get(const QUrl &url, Handler onSuccess)
         const int status =
             reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
         if (status != 0 && (status < 200 || status >= 300)) {
-            Q_EMIT errorOccurred(i18n("Server returned HTTP %1.", status));
+            Q_EMIT errorOccurred(tr("Server returned HTTP %1.").arg(status));
             return;
         }
 
         const QByteArray body = reply->readAll();
         if (body.isEmpty()) {
-            Q_EMIT errorOccurred(i18n("Empty response from server."));
+            Q_EMIT errorOccurred(tr("Empty response from server."));
             return;
         }
         onSuccess(body);
@@ -91,7 +90,7 @@ void XtreamClient::authenticate()
     get(m_urls.api(), [this](const QByteArray &body) {
         const ServerInfo info = ServerInfo::fromJson(body);
         if (!info.authValid) {
-            Q_EMIT errorOccurred(i18n("Authentication failed. Check your credentials."));
+            Q_EMIT errorOccurred(tr("Authentication failed. Check your credentials."));
             return;
         }
         Q_EMIT authenticated(info);

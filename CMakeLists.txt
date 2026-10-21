@@ -12,32 +12,16 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Debug)
 endif()
 
-# extra-cmake-modules
-find_package(ECM 6.0 REQUIRED NO_MODULE)
-list(APPEND CMAKE_MODULE_PATH ${ECM_MODULE_PATH})
-
-include(KDEInstallDirs)
-include(KDECMakeSettings)
-include(KDECompilerSettings NO_POLICY_SCOPE)
-include(FeatureSummary)
+include(GNUInstallDirs)
 
 find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets Network Test OpenGLWidgets)
-find_package(KF6 6.0 REQUIRED COMPONENTS
-    CoreAddons
-    XmlGui
-    Config
-    ConfigWidgets
-    I18n
-    Notifications
-    GlobalAccel
-    KIO
-    WidgetsAddons
-    IconThemes
-)
 
 # libmpv
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(MPV REQUIRED IMPORTED_TARGET mpv)
+
+# Strict string handling (previously provided by KDECompilerSettings).
+add_compile_definitions(QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII QT_NO_CAST_FROM_BYTEARRAY)
 
 enable_testing()
 
@@ -62,8 +46,6 @@ target_link_libraries(kiptv_core PUBLIC
     Qt6::Core
     Qt6::Gui
     Qt6::Network
-    KF6::I18n
-    KF6::ConfigCore
 )
 
 set(KIPTV_APP_SOURCES
@@ -75,7 +57,6 @@ set(KIPTV_APP_SOURCES
     src/browse/seriesdetail.cpp
     src/player/mpvwidget.cpp
     src/player/playerwidget.cpp
-    src/kiptv.qrc
 )
 
 add_executable(kiptv ${KIPTV_APP_SOURCES})
@@ -83,28 +64,14 @@ target_link_libraries(kiptv PRIVATE
     kiptv_core
     Qt6::Widgets
     Qt6::OpenGLWidgets
-    KF6::CoreAddons
-    KF6::XmlGui
-    KF6::ConfigCore
-    KF6::ConfigGui
-    KF6::ConfigWidgets
-    KF6::I18n
-    KF6::Notifications
-    KF6::GlobalAccel
-    KF6::KIOCore
-    KF6::WidgetsAddons
-    KF6::IconThemes
     PkgConfig::MPV
 )
 
-install(TARGETS kiptv ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})
-install(FILES src/kiptvui.rc DESTINATION ${KDE_INSTALL_KXMLGUIDIR}/kiptv)
-install(FILES src/kiptv.notifyrc DESTINATION ${KDE_INSTALL_KNOTIFYRCDIR})
-install(FILES data/io.github.xmonader.kiptv.desktop DESTINATION ${KDE_INSTALL_APPDIR})
-install(FILES data/io.github.xmonader.kiptv.metainfo.xml DESTINATION ${KDE_INSTALL_METAINFODIR})
+install(TARGETS kiptv RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(FILES data/io.github.xmonader.kiptv.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
+install(FILES data/io.github.xmonader.kiptv.metainfo.xml DESTINATION ${CMAKE_INSTALL_DATADIR}/metainfo)
 install(FILES data/icons/io.github.xmonader.kiptv.svg
-        DESTINATION ${KDE_INSTALL_ICONDIR}/hicolor/scalable/apps)
+        DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable/apps)
 
 add_subdirectory(tests)
 
-feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)

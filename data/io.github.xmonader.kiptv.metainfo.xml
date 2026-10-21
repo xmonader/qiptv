@@ -4,10 +4,10 @@
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>MIT</project_license>
   <name>kiptv</name>
-  <summary>Native KDE IPTV client for Xtream Codes providers</summary>
+  <summary>Native Qt IPTV client for Xtream Codes providers</summary>
   <description>
     <p>
-      kiptv is a native KDE desktop application for watching IPTV content
+      kiptv is a native Qt desktop application for watching IPTV content
       delivered through the Xtream Codes API. Log in with your provider's
       server URL and credentials to browse Live TV, Movies and Series, with
       libmpv-powered playback and hardware decoding.

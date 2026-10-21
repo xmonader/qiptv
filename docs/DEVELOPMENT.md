@@ -3,20 +3,14 @@
 ## Prerequisites
 
 - C++17 compiler (GCC/Clang)
-- CMake ≥ 3.20, extra-cmake-modules ≥ 6.0
-- Qt 6.5+ (Core, Gui, Widgets, Network, Test)
-- KDE Frameworks 6: CoreAddons, XmlGui, Config, ConfigWidgets, I18n,
-  Notifications, GlobalAccel, KIO, WidgetsAddons, IconThemes
+- CMake ≥ 3.20
+- Qt 6.5+ (Core, Gui, Widgets, Network, Test, OpenGLWidgets)
 - libmpv (`mpv` pkg-config module)
 
 On Debian/Ubuntu:
 
 ```bash
-sudo apt install build-essential cmake extra-cmake-modules \
-  qt6-base-dev libkf6coreaddons-dev libkf6xmlgui-dev libkf6config-dev \
-  libkf6configwidgets-dev libkf6i18n-dev libkf6notifications-dev \
-  libkf6globalaccel-dev libkf6kio-dev libkf6widgetsaddons-dev \
-  libkf6iconthemes-dev libmpv-dev
+sudo apt install build-essential cmake qt6-base-dev libmpv-dev
 ```
 
 ## Workflow

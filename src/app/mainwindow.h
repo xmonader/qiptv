@@ -4,7 +4,7 @@
 #include "config/profilestore.h"
 #include "config/settings.h"
 
-#include <KXmlGuiWindow>
+#include <QMainWindow>
 
 class QStackedWidget;
 class QSystemTrayIcon;
@@ -26,7 +26,7 @@ struct ServerInfo;
  * wires login -> authenticate -> (save profile) -> connected placeholder.
  * Phase 4 replaces the placeholder with the browsing UI.
  */
-class MainWindow : public KXmlGuiWindow {
+class MainWindow : public QMainWindow {
     Q_OBJECT
 public:
     explicit MainWindow(QWidget *parent = nullptr);
@@ -38,8 +38,8 @@ protected:
 private:
     void setupActions();
     void setupSystemTray();
-    void setupGlobalShortcuts();
-    void notify(const QString &eventId, const QString &title, const QString &text);
+    void setupMediaKeys();
+    void notify(const QString &title, const QString &text);
     void openSettings();
     void applySettings();
     PlayerWidget *ensurePlayer(); ///< create + wire the player once (idempotent)

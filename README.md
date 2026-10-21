@@ -1,6 +1,6 @@
 # kiptv
 
-A native **KDE** desktop IPTV client written in **C++**, targeting the
+A native **Qt** desktop IPTV client written in **C++**, targeting the
 **Xtream Codes** API with **libmpv** playback.
 
 Log in with your provider's server URL and credentials to browse Live TV,
@@ -14,7 +14,7 @@ Movies (VOD) and Series, and play them with hardware-accelerated libmpv.
 - ⏭️ **Channel zapping** — next/previous live channel via buttons or media keys
 - 🔍 **Filtering** — live text filter over the current list
 - 🎬 **Series detail** — season selector and episode list
-- 🔔 **KDE integration** — system tray, global media keys, notifications
+- 🔔 **Desktop integration** — system tray, media keys, notifications
 - ⚙️ **Settings** — live container, default volume, network cache, minimize-to-tray
 
 ## Tech stack
@@ -22,17 +22,15 @@ Movies (VOD) and Series, and play them with hardware-accelerated libmpv.
 | Concern | Choice |
 |---------|--------|
 | Language | C++17 |
-| Build | CMake + extra-cmake-modules |
-| UI | KDE Frameworks 6 (KXmlGui, QWidgets) |
+| Build | CMake |
+| UI | Qt 6 Widgets |
 | Playback | libmpv |
 | HTTP / JSON | Qt Network + Qt JSON |
-| Storage | KConfig (passwords obfuscated; KWallet when available) |
+| Storage | QSettings INI (~/.config/kiptvrc; passwords obfuscated) |
 
 ## Build & run
 
-Prerequisites: a C++17 compiler, CMake ≥ 3.20, Qt 6, KDE Frameworks 6
-(CoreAddons, XmlGui, Config, ConfigWidgets, I18n, Notifications, GlobalAccel,
-KIO, WidgetsAddons, IconThemes), and `libmpv`.
+Prerequisites: a C++17 compiler, CMake ≥ 3.20, Qt 6.5+, and `libmpv`.
 
 ```bash
 make build   # configure + compile

@@ -8,7 +8,7 @@ cmake --install build --prefix /usr/local
 ```
 
 Installs the `kiptv` binary plus the desktop entry, AppStream metainfo,
-KXmlGui `.rc`, and `kiptv.notifyrc` to the standard KDE locations.
+and icon to the standard GNUInstallDirs locations.
 
 ## Flatpak
 
@@ -31,6 +31,6 @@ If a libmpv/libplacebo build fails, bump the `tag:` fields to current releases.
 
 ## AppImage (alternative)
 
-Build with a release prefix, then use `linuxdeploy` with the Qt and KF6
-plugins. libmpv and its codecs must be bundled or relied upon from the host.
+Build with a release prefix, then use `linuxdeploy` with the Qt plugin.
+libmpv and its codecs must be bundled or relied upon from the host.
 This path is not scripted in-tree yet.

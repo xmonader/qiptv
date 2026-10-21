@@ -2,7 +2,6 @@
 
 #include "player/mpvwidget.h"
 
-#include <KLocalizedString>
 
 #include <QCloseEvent>
 #include <QHBoxLayout>
@@ -55,12 +54,12 @@ PlayerWidget::PlayerWidget(QWidget *parent)
     m_title = new QLabel(this);
     m_title->setStyleSheet(QStringLiteral("font-weight: bold;"));
 
-    m_back = iconButton(QStringLiteral("go-previous"), i18n("Back"), this);
-    m_previous = iconButton(QStringLiteral("media-skip-backward"), i18n("Previous channel"), this);
-    m_playPause = iconButton(QStringLiteral("media-playback-pause"), i18n("Play/Pause"), this);
-    m_stop = iconButton(QStringLiteral("media-playback-stop"), i18n("Stop"), this);
-    m_next = iconButton(QStringLiteral("media-skip-forward"), i18n("Next channel"), this);
-    m_fullscreen = iconButton(QStringLiteral("view-fullscreen"), i18n("Fullscreen"), this);
+    m_back = iconButton(QStringLiteral("go-previous"), tr("Back"), this);
+    m_previous = iconButton(QStringLiteral("media-skip-backward"), tr("Previous channel"), this);
+    m_playPause = iconButton(QStringLiteral("media-playback-pause"), tr("Play/Pause"), this);
+    m_stop = iconButton(QStringLiteral("media-playback-stop"), tr("Stop"), this);
+    m_next = iconButton(QStringLiteral("media-skip-forward"), tr("Next channel"), this);
+    m_fullscreen = iconButton(QStringLiteral("view-fullscreen"), tr("Fullscreen"), this);
 
     m_position = new QSlider(Qt::Horizontal, this);
     m_position->setRange(0, 0);
@@ -70,7 +69,7 @@ PlayerWidget::PlayerWidget(QWidget *parent)
     m_volume->setRange(0, 150);
     m_volume->setValue(100);
     m_volume->setMaximumWidth(120);
-    m_volume->setToolTip(i18n("Volume"));
+    m_volume->setToolTip(tr("Volume"));
 
     auto *row = new QHBoxLayout;
     row->addWidget(m_back);
@@ -194,7 +193,7 @@ void PlayerWidget::updatePlayIcon(bool paused)
 void PlayerWidget::onEndReached(const QString &error)
 {
     if (!error.isEmpty()) {
-        Q_EMIT errorOccurred(i18n("Playback error: %1", error));
+        Q_EMIT errorOccurred(tr("Playback error: %1").arg(error));
     }
 }
 

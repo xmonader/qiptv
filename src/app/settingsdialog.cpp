@@ -2,7 +2,6 @@
 
 #include "config/settings.h"
 
-#include <KLocalizedString>
 
 #include <QCheckBox>
 #include <QComboBox>
@@ -17,7 +16,7 @@ SettingsDialog::SettingsDialog(Settings &settings, QWidget *parent)
     : QDialog(parent)
     , m_settings(settings)
 {
-    setWindowTitle(i18nc("@title:window", "Settings"));
+    setWindowTitle(tr("Settings"));
 
     m_container = new QComboBox(this);
     m_container->addItem(QStringLiteral("ts"));
@@ -25,10 +24,10 @@ SettingsDialog::SettingsDialog(Settings &settings, QWidget *parent)
     const int idx = m_container->findText(settings.liveContainer());
     m_container->setCurrentIndex(idx >= 0 ? idx : 0);
 
-    m_minimizeToTray = new QCheckBox(i18n("Minimize to system tray on close"), this);
+    m_minimizeToTray = new QCheckBox(tr("Minimize to system tray on close"), this);
     m_minimizeToTray->setChecked(settings.minimizeToTray());
 
-    m_networkCaching = new QCheckBox(i18n("Enable network stream cache"), this);
+    m_networkCaching = new QCheckBox(tr("Enable network stream cache"), this);
     m_networkCaching->setChecked(settings.networkCaching());
 
     m_volume = new QSpinBox(this);
@@ -37,8 +36,8 @@ SettingsDialog::SettingsDialog(Settings &settings, QWidget *parent)
     m_volume->setValue(settings.lastVolume());
 
     auto *form = new QFormLayout;
-    form->addRow(i18n("Live stream format:"), m_container);
-    form->addRow(i18n("Default volume:"), m_volume);
+    form->addRow(tr("Live stream format:"), m_container);
+    form->addRow(tr("Default volume:"), m_volume);
     form->addRow(QString(), m_networkCaching);
     form->addRow(QString(), m_minimizeToTray);
 

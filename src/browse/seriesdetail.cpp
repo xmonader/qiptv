@@ -3,7 +3,6 @@
 #include "api/xtreamclient.h"
 #include "core/imageloader.h"
 
-#include <KLocalizedString>
 
 #include <QComboBox>
 #include <QHBoxLayout>
@@ -25,7 +24,7 @@ SeriesDetail::SeriesDetail(XtreamClient *client, ImageLoader *images, QWidget *p
     , m_client(client)
     , m_images(images)
 {
-    m_back = new QPushButton(QIcon::fromTheme(QStringLiteral("go-previous")), i18n("Back"), this);
+    m_back = new QPushButton(QIcon::fromTheme(QStringLiteral("go-previous")), tr("Back"), this);
     m_back->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
 
     m_poster = new QLabel(this);
@@ -46,7 +45,7 @@ SeriesDetail::SeriesDetail(XtreamClient *client, ImageLoader *images, QWidget *p
     auto *infoCol = new QVBoxLayout;
     infoCol->addWidget(m_title);
     infoCol->addWidget(m_plot, 1);
-    infoCol->addWidget(new QLabel(i18n("Season:"), this));
+    infoCol->addWidget(new QLabel(tr("Season:"), this));
     infoCol->addWidget(m_seasonBox);
 
     auto *topRow = new QHBoxLayout;
@@ -92,7 +91,7 @@ void SeriesDetail::onInfoReady(const SeriesInfo &info)
     m_seasonBox->clear();
     const QVector<int> seasons = info.seasons();
     for (int s : seasons) {
-        m_seasonBox->addItem(i18n("Season %1", s), s);
+        m_seasonBox->addItem(tr("Season %1").arg(s), s);
     }
     block.unblock();
     if (m_seasonBox->count() > 0) {
@@ -114,8 +113,8 @@ void SeriesDetail::onSeasonChanged()
             continue;
         }
         const QString label = e.title.isEmpty()
-            ? i18n("Episode %1", e.episodeNum)
-            : i18n("%1. %2", e.episodeNum, e.title);
+            ? tr("Episode %1").arg(e.episodeNum)
+            : tr("%1. %2").arg(e.episodeNum).arg(e.title);
         auto *item = new QListWidgetItem(QIcon::fromTheme(QStringLiteral("video-x-generic")), label);
         item->setData(EpisodeIndexRole, i);
         m_episodes->addItem(item);
@@ -133,8 +132,7 @@ void SeriesDetail::onEpisodeActivated(QListWidgetItem *item)
     }
     const Episode &e = m_info.episodes.at(idx);
     const QString url = m_client->urls().seriesUrl(e.id, e.containerExtension);
-    const QString title = i18nc("series, season and episode",
-                                "%1 — S%2E%3", m_name, e.season, e.episodeNum);
+    const QString title = tr("%1 — S%2E%3").arg(m_name).arg(e.season).arg(e.episodeNum);
     Q_EMIT playEpisode(url, title);
 }
 
