@@ -24,6 +24,7 @@ public:
 
     bool isValid() const { return m_mpv != nullptr; }
     bool isPaused() const { return m_paused; }
+    mpv_handle *handle() const { return m_mpv; } ///< for diagnostics/integration
 
     void play(const QString &url);
     void stop();

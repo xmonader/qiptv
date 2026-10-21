@@ -57,6 +57,10 @@ MpvWidget::MpvWidget(QWidget *parent)
     mpv_observe_property(m_mpv, kDuration, "duration", MPV_FORMAT_DOUBLE);
     mpv_observe_property(m_mpv, kPause, "pause", MPV_FORMAT_FLAG);
 
+    // Surface mpv's own diagnostics (network, decoder, VO errors) in stderr;
+    // without this a failed stream is indistinguishable from a black frame.
+    mpv_request_log_messages(m_mpv, "info");
+
     mpv_set_wakeup_callback(m_mpv, &MpvWidget::onWakeup, this);
 }
 
@@ -232,6 +236,11 @@ void MpvWidget::onMpvEvents()
                 m_paused = *static_cast<int *>(prop->data) != 0;
                 Q_EMIT pausedChanged(m_paused);
             }
+            break;
+        }
+        case MPV_EVENT_LOG_MESSAGE: {
+            auto *msg = static_cast<mpv_event_log_message *>(event->data);
+            qWarning("%s: %s", msg->prefix, msg->text);
             break;
         }
         case MPV_EVENT_END_FILE: {
