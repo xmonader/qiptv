@@ -1,0 +1,72 @@
+name: Bug report
+description: Report a defect in qiptv
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! Please fill out the sections below.
+
+        **Do not paste real provider credentials, server URLs, usernames, or passwords.**
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear description of the actual behavior.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: Numbered steps that reliably reproduce the issue.
+      placeholder: |
+        1. Log in with provider X
+        2. Open Live TV
+        3. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: Paste any relevant output from the terminal or journal. Redact credentials.
+      render: shell
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating system & version
+      placeholder: "Ubuntu 24.04"
+    validations:
+      required: true
+
+  - type: input
+    id: qt
+    attributes:
+      label: Qt version
+      placeholder: "qmake --version / 6.5.2"
+    validations:
+      required: true
+
+  - type: input
+    id: mpv
+    attributes:
+      label: libmpv version
+      placeholder: "0.36.0"
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Additional context

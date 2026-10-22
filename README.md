@@ -1,5 +1,8 @@
 # qiptv
 
+[![CI](https://github.com/xmonader/qiptv/actions/workflows/ci.yml/badge.svg)](https://github.com/xmonader/qiptv/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 A native **Qt** desktop IPTV client written in **C++**, targeting the
 **Xtream Codes** API with **libmpv** playback.
 
@@ -73,6 +76,14 @@ drives the package version.
 - [Development](docs/DEVELOPMENT.md)
 - [Testing & live-provider verification](docs/TESTING.md)
 - [Distribution](docs/DISTRIBUTION.md)
+- [Changelog](CHANGELOG.md)
+
+## Contributing & community
+
+- [Contributing guide](CONTRIBUTING.md)
+- [Code of Conduct](CODE_OF_CONDUCT.md)
+- [Security policy](SECURITY.md)
+- [Issue templates](.github/ISSUE_TEMPLATE/) and [PR template](.github/PULL_REQUEST_TEMPLATE.md)
 
 ## Project layout
 
