@@ -9,14 +9,16 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-24.04
+    timeout-minutes: 30
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Install system dependencies
+        timeout-minutes: 10
         run: |
-          sudo apt-get update
-          sudo apt-get install -y \
+          sudo apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 update
+          sudo apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 install -y \
             build-essential cmake ninja-build pkg-config \
             libmpv-dev \
             libgl1 libegl1 libxkbcommon0 \
