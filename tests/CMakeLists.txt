@@ -32,10 +32,14 @@ add_test(NAME settings COMMAND test_settings)
 add_executable(test_imageloader test_imageloader.cpp)
 target_link_libraries(test_imageloader PRIVATE qiptv_core Qt6::Test Qt6::Network Qt6::Gui)
 add_test(NAME imageloader COMMAND test_imageloader)
-set_tests_properties(imageloader PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
 
 # GUI test: compiles the widget directly and runs under the offscreen platform.
 add_executable(test_loginwidget test_loginwidget.cpp ${CMAKE_SOURCE_DIR}/src/auth/loginwidget.cpp)
 target_link_libraries(test_loginwidget PRIVATE qiptv_core Qt6::Test Qt6::Widgets)
 add_test(NAME loginwidget COMMAND test_loginwidget)
-set_tests_properties(loginwidget PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+
+# GUI-touching tests construct a QGuiApplication/QApplication; run every test
+# under the offscreen platform so the suite is headless-safe (CI has no
+# display). Logic-only tests are unaffected by the platform choice.
+set_tests_properties(parse models urlbuilder xtreamclient profilestore settings imageloader loginwidget
+    PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
