@@ -22,11 +22,10 @@ jobs:
             libgl1 libegl1 libxkbcommon0 \
             desktop-file-utils appstream
 
-      - name: "Install Qt 6.5+ (qtbase: Core, Gui, Widgets, Network, Test, OpenGL)"
+      - name: "Install Qt 6.5+ (base: Core, Gui, Widgets, Network, Test, OpenGL)"
         uses: jurplel/install-qt-action@v4
         with:
           version: '6.5.*'
-          modules: 'qtbase'
 
       - name: Configure
         run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
