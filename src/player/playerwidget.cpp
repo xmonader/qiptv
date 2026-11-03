@@ -12,10 +12,15 @@
 #include <QTimer>
 #include <QToolButton>
 #include <QVBoxLayout>
+#include <QWheelEvent>
 
 namespace qiptv {
 
 namespace {
+constexpr int kSeekStepSeconds = 10;
+constexpr int kVolumeStep = 5;
+constexpr int kVolumeMax = 150;
+
 QString formatTime(double seconds)
 {
     if (seconds < 0 || !qIsFinite(seconds)) {
@@ -40,6 +45,9 @@ QToolButton *iconButton(const QString &theme, const QString &tip, QWidget *paren
     b->setIcon(QIcon::fromTheme(theme));
     b->setToolTip(tip);
     b->setAutoRaise(true);
+    // Controls must never hold keyboard focus: the player handles Space/arrows
+    // itself, and a focused button/slider would swallow them.
+    b->setFocusPolicy(Qt::NoFocus);
     return b;
 }
 } // namespace
@@ -59,28 +67,50 @@ PlayerWidget::PlayerWidget(QWidget *parent)
     m_playPause = iconButton(QStringLiteral("media-playback-pause"), tr("Play/Pause"), this);
     m_stop = iconButton(QStringLiteral("media-playback-stop"), tr("Stop"), this);
     m_next = iconButton(QStringLiteral("media-skip-forward"), tr("Next channel"), this);
+    m_seekBack = iconButton(QStringLiteral("media-seek-backward"),
+                            tr("Back %1 seconds (Left)").arg(kSeekStepSeconds), this);
+    m_seekForward = iconButton(QStringLiteral("media-seek-forward"),
+                               tr("Forward %1 seconds (Right)").arg(kSeekStepSeconds), this);
+    m_previous->setObjectName(QStringLiteral("previousChannel"));
+    m_next->setObjectName(QStringLiteral("nextChannel"));
+    m_seekBack->setObjectName(QStringLiteral("seekBack"));
+    m_seekForward->setObjectName(QStringLiteral("seekForward"));
     m_fullscreen = iconButton(QStringLiteral("view-fullscreen"), tr("Fullscreen"), this);
 
     m_position = new QSlider(Qt::Horizontal, this);
     m_position->setRange(0, 0);
+    m_position->setFocusPolicy(Qt::NoFocus);
+    m_position->setObjectName(QStringLiteral("position"));
     m_timeLabel = new QLabel(QStringLiteral("0:00 / 0:00"), this);
 
     m_volume = new QSlider(Qt::Horizontal, this);
-    m_volume->setRange(0, 150);
+    m_volume->setRange(0, kVolumeMax);
     m_volume->setValue(100);
+    m_volume->setSingleStep(kVolumeStep);
+    m_volume->setPageStep(kVolumeStep * 2);
     m_volume->setMaximumWidth(120);
-    m_volume->setToolTip(tr("Volume"));
+    m_volume->setToolTip(tr("Volume (Up/Down, mouse wheel)"));
+    m_volume->setFocusPolicy(Qt::NoFocus);
+    m_volume->setObjectName(QStringLiteral("volume"));
+    m_volumeLabel = new QLabel(this);
+    m_volumeLabel->setObjectName(QStringLiteral("volumeLabel"));
+    // Reserve room for "150%" so the layout doesn't jitter while adjusting.
+    m_volumeLabel->setMinimumWidth(m_volumeLabel->fontMetrics().horizontalAdvance(QStringLiteral("150%")));
+    m_volumeLabel->setText(QStringLiteral("100%"));
 
     auto *row = new QHBoxLayout;
     row->addWidget(m_back);
     row->addWidget(m_previous);
+    row->addWidget(m_seekBack);
     row->addWidget(m_playPause);
     row->addWidget(m_stop);
+    row->addWidget(m_seekForward);
     row->addWidget(m_next);
     row->addWidget(m_position, 1);
     row->addWidget(m_timeLabel);
     row->addWidget(new QLabel(QStringLiteral("🔊"), this));
     row->addWidget(m_volume);
+    row->addWidget(m_volumeLabel);
     row->addWidget(m_fullscreen);
 
     auto *controlsLayout = new QVBoxLayout;
@@ -98,6 +128,10 @@ PlayerWidget::PlayerWidget(QWidget *parent)
     root->addWidget(m_controls);
 
     setMouseTracking(true);
+    // The player owns keyboard input; clicks anywhere inside (all children are
+    // NoFocus) give focus back here.
+    setFocusPolicy(Qt::StrongFocus);
+    setSeekable(false);
 
     m_hideTimer = new QTimer(this);
     m_hideTimer->setSingleShot(true);
@@ -116,11 +150,15 @@ PlayerWidget::PlayerWidget(QWidget *parent)
     });
     connect(m_previous, &QToolButton::clicked, this, &PlayerWidget::previousRequested);
     connect(m_next, &QToolButton::clicked, this, &PlayerWidget::nextRequested);
+    connect(m_seekBack, &QToolButton::clicked, this, [this] { m_mpv->seekRelative(-kSeekStepSeconds); });
+    connect(m_seekForward, &QToolButton::clicked, this, [this] { m_mpv->seekRelative(kSeekStepSeconds); });
     connect(m_playPause, &QToolButton::clicked, m_mpv, &MpvWidget::togglePause);
     connect(m_stop, &QToolButton::clicked, this, &PlayerWidget::stop);
     connect(m_fullscreen, &QToolButton::clicked, this, &PlayerWidget::toggleFullscreen);
     connect(m_volume, &QSlider::valueChanged, m_mpv, &MpvWidget::setVolume);
     connect(m_volume, &QSlider::valueChanged, this, &PlayerWidget::volumeChanged);
+    connect(m_volume, &QSlider::valueChanged, this,
+            [this](int v) { m_volumeLabel->setText(QStringLiteral("%1%").arg(v)); });
 
     connect(m_position, &QSlider::sliderPressed, this, [this] { m_userSeeking = true; });
     connect(m_position, &QSlider::sliderReleased, this, [this] {
@@ -136,11 +174,13 @@ PlayerWidget::PlayerWidget(QWidget *parent)
     connect(m_mpv, &MpvWidget::playbackError, this, &PlayerWidget::errorOccurred);
 }
 
-void PlayerWidget::play(const QString &url, const QString &title)
+void PlayerWidget::play(const QString &url, const QString &title, bool zappable)
 {
     m_title->setText(title);
+    m_previous->setVisible(zappable);
+    m_next->setVisible(zappable);
     m_duration = 0.0;
-    m_position->setRange(0, 0);
+    setSeekable(false);
     m_timeLabel->setText(QStringLiteral("0:00 / 0:00"));
     m_mpv->setVolume(m_volume->value());
     m_mpv->play(url);
@@ -159,7 +199,7 @@ void PlayerWidget::togglePause()
 
 void PlayerWidget::setInitialVolume(int percent)
 {
-    m_volume->setValue(qBound(0, percent, 150));
+    m_volume->setValue(qBound(0, percent, kVolumeMax));
 }
 
 void PlayerWidget::onPositionChanged(double seconds)
@@ -174,9 +214,21 @@ void PlayerWidget::onDurationChanged(double seconds)
 {
     m_duration = seconds;
     // Live streams report 0 duration; disable seeking for those.
-    const bool seekable = seconds > 0;
+    setSeekable(seconds > 0);
+}
+
+void PlayerWidget::setSeekable(bool seekable)
+{
     m_position->setEnabled(seekable);
-    m_position->setRange(0, seekable ? static_cast<int>(seconds) : 0);
+    m_position->setRange(0, seekable ? static_cast<int>(m_duration) : 0);
+    m_seekBack->setEnabled(seekable);
+    m_seekForward->setEnabled(seekable);
+}
+
+void PlayerWidget::stepVolume(int delta)
+{
+    // QSlider clamps to its range, and valueChanged drives mpv + persistence.
+    m_volume->setValue(m_volume->value() + delta);
 }
 
 void PlayerWidget::onPausedChanged(bool paused)
@@ -250,6 +302,20 @@ void PlayerWidget::mouseMoveEvent(QMouseEvent *event)
     QWidget::mouseMoveEvent(event);
 }
 
+void PlayerWidget::wheelEvent(QWheelEvent *event)
+{
+    // One notch = 120 units; accumulate so high-resolution touchpads, which
+    // send many small deltas, don't jump the volume on every tiny movement.
+    m_wheelAccum += event->angleDelta().y();
+    const int notches = m_wheelAccum / 120;
+    if (notches != 0) {
+        m_wheelAccum -= notches * 120;
+        stepVolume(notches * kVolumeStep);
+        nudgeControls();
+    }
+    event->accept();
+}
+
 void PlayerWidget::closeEvent(QCloseEvent *event)
 {
     // The player is its own top-level window; closing it must return to the
@@ -276,16 +342,21 @@ void PlayerWidget::keyPressEvent(QKeyEvent *event)
         m_mpv->togglePause();
         break;
     case Qt::Key_Left:
-        m_mpv->seekRelative(-10);
+        m_mpv->seekRelative(-kSeekStepSeconds);
         break;
     case Qt::Key_Right:
-        m_mpv->seekRelative(10);
+        m_mpv->seekRelative(kSeekStepSeconds);
         break;
     case Qt::Key_Up:
-        m_volume->setValue(m_volume->value() + 5);
+    case Qt::Key_Plus:
+    case Qt::Key_Equal:
+    case Qt::Key_VolumeUp:
+        stepVolume(kVolumeStep);
         break;
     case Qt::Key_Down:
-        m_volume->setValue(m_volume->value() - 5);
+    case Qt::Key_Minus:
+    case Qt::Key_VolumeDown:
+        stepVolume(-kVolumeStep);
         break;
     case Qt::Key_F:
         toggleFullscreen();

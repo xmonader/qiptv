@@ -37,6 +37,9 @@ public:
     /// No-op outside the Live section or when the list is empty.
     void zap(int delta);
 
+    /// True when zap() would act: Live section with at least one channel.
+    bool canZap() const;
+
     /// Stream container/extension used when building live channel URLs.
     void setLiveContainer(const QString &ext) { m_liveContainer = ext; }
 

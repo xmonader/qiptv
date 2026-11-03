@@ -293,7 +293,10 @@ void MainWindow::onPlayRequested(const QString &url, const QString &title)
     player->show();
     player->raise();
     player->activateWindow();
-    player->play(url, title);
+    // Channel zapping only makes sense for live channels picked in the
+    // browser; movies and series episodes get seek controls instead.
+    const bool zappable = sender() == m_browse && m_browse->canZap();
+    player->play(url, title, zappable);
     notify(tr("Now playing"), title);
     if (m_tray) {
         m_tray->setToolTip(tr("qiptv — %1").arg(title));

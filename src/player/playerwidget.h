@@ -21,7 +21,8 @@ class PlayerWidget : public QWidget {
 public:
     explicit PlayerWidget(QWidget *parent = nullptr);
 
-    void play(const QString &url, const QString &title);
+    /// @param zappable  show previous/next-channel buttons (live channels only)
+    void play(const QString &url, const QString &title, bool zappable = false);
     void stop();
     void togglePause();        ///< exposed for global media keys / tray
     void setInitialVolume(int percent);
@@ -36,6 +37,7 @@ Q_SIGNALS:
 protected:
     void keyPressEvent(QKeyEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
+    void wheelEvent(QWheelEvent *event) override;
     bool eventFilter(QObject *watched, QEvent *event) override;
     void closeEvent(QCloseEvent *event) override;
 
@@ -49,6 +51,8 @@ private:
     void leaveFullscreen();
     void nudgeControls();
     void updatePlayIcon(bool paused);
+    void stepVolume(int delta);
+    void setSeekable(bool seekable);
 
     MpvWidget *m_mpv = nullptr;
     QWidget *m_controls = nullptr;
@@ -57,16 +61,20 @@ private:
     QToolButton *m_playPause = nullptr;
     QToolButton *m_stop = nullptr;
     QToolButton *m_next = nullptr;
+    QToolButton *m_seekBack = nullptr;
+    QToolButton *m_seekForward = nullptr;
     QToolButton *m_fullscreen = nullptr;
     QSlider *m_position = nullptr;
     QSlider *m_volume = nullptr;
     QLabel *m_timeLabel = nullptr;
+    QLabel *m_volumeLabel = nullptr;
     QLabel *m_title = nullptr;
     QTimer *m_hideTimer = nullptr;
 
     double m_duration = 0.0;
     bool m_userSeeking = false;
     bool m_isFullscreen = false;
+    int m_wheelAccum = 0;
 };
 
 } // namespace qiptv

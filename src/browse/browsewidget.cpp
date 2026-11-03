@@ -236,9 +236,14 @@ void BrowseWidget::onCategoryChanged()
     }
 }
 
+bool BrowseWidget::canZap() const
+{
+    return currentSection() == Live && m_content->count() > 0;
+}
+
 void BrowseWidget::zap(int delta)
 {
-    if (currentSection() != Live || m_content->count() == 0 || delta == 0) {
+    if (!canZap() || delta == 0) {
         return;
     }
     const int count = m_content->count();
