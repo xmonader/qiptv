@@ -31,6 +31,11 @@
   </provides>
   <content_rating type="oars-1.1"/>
   <releases>
+    <release version="0.1.1" date="2026-11-03">
+      <description>
+        <p>Working seek and volume controls, playlist next/previous, episode auto-advance.</p>
+      </description>
+    </release>
     <release version="0.1.0" date="2026-05-29">
       <description>
         <p>Initial release: Xtream Codes browsing and libmpv playback.</p>

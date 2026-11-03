@@ -1,3 +1,12 @@
+qiptv (0.1.1) resolute; urgency=medium
+
+  * Fix player keyboard focus so arrow keys seek and change volume.
+  * Allow volume up to 150%.
+  * Add seek buttons, wheel volume, playlist next/previous for channels,
+    movies and episodes, and episode auto-advance.
+
+ -- xmonader <xmonader@gmail.com>  Tue, 03 Nov 2026 12:00:00 +0200
+
 qiptv (0.1.0) questing; urgency=medium
 
   * Initial release: Xtream Codes IPTV player for KDE.

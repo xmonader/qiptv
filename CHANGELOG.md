@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-11-03
+
+### Fixed
+- Player controls no longer steal keyboard focus, so arrow keys seek and
+  change volume after clicking a button or slider.
+- Volume above 130% now takes effect (mpv `volume-max` raised to 150).
+
+### Added
+- ±10 s seek buttons; mouse-wheel and `+`/`-` volume in 5% steps; volume %.
+- Next/previous walk the list playback started from: live channels (wrap),
+  movies in the category, and every episode of a series across seasons.
+- Auto-advance to the next episode when one finishes.
+
 ## [0.1.0] - 2026-05-29
 
 ### Added
