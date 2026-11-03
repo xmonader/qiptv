@@ -2,7 +2,7 @@
 BUILD_DIR := build
 DIST_DIR := dist
 
-.PHONY: all build configure test lint run install validate deb deb-lint clean
+.PHONY: all build configure test lint run install validate deb deb-lint site-video clean
 
 all: build
 
@@ -45,6 +45,10 @@ deb:
 	@echo "Built: $$(ls -1t $(DIST_DIR)/qiptv_*.deb 2>/dev/null | head -1)"
 
 # Run the Debian policy linter against the most recent build (optional tool).
+# Re-render the website's explainer video (needs python3-cairo + ffmpeg).
+site-video:
+	@python3 -I tools/explainer/render.py site/assets/explainer.mp4 --poster site/assets/explainer-poster.jpg
+
 deb-lint:
 	@if command -v lintian >/dev/null 2>&1; then \
 		lintian $$(ls -1t $(DIST_DIR)/qiptv_*.deb 2>/dev/null | head -1); \
