@@ -20,6 +20,9 @@ namespace {
 constexpr int kSeekStepSeconds = 10;
 constexpr int kVolumeStep = 5;
 constexpr int kVolumeMax = 150;
+// mpv reports EOF when a network stream drops mid-file, too. Only treat it as
+// "finished" when we were this close to the known end.
+constexpr double kFinishedSlackSeconds = 30.0;
 
 QString formatTime(double seconds)
 {
@@ -172,6 +175,7 @@ PlayerWidget::PlayerWidget(QWidget *parent)
     connect(m_mpv, &MpvWidget::durationChanged, this, &PlayerWidget::onDurationChanged);
     connect(m_mpv, &MpvWidget::pausedChanged, this, &PlayerWidget::onPausedChanged);
     connect(m_mpv, &MpvWidget::endReached, this, &PlayerWidget::onEndReached);
+    connect(m_mpv, &MpvWidget::eofReached, this, &PlayerWidget::onEofReached);
     connect(m_mpv, &MpvWidget::playbackError, this, &PlayerWidget::errorOccurred);
 }
 
@@ -188,6 +192,7 @@ void PlayerWidget::play(const QString &url, const QString &title)
 {
     m_title->setText(title);
     m_duration = 0.0;
+    m_lastPosition = 0.0;
     setSeekable(false);
     m_timeLabel->setText(QStringLiteral("0:00 / 0:00"));
     m_mpv->setVolume(m_volume->value());
@@ -212,6 +217,7 @@ void PlayerWidget::setInitialVolume(int percent)
 
 void PlayerWidget::onPositionChanged(double seconds)
 {
+    m_lastPosition = seconds;
     if (!m_userSeeking) {
         m_position->setValue(static_cast<int>(seconds));
     }
@@ -254,6 +260,14 @@ void PlayerWidget::onEndReached(const QString &error)
 {
     if (!error.isEmpty()) {
         Q_EMIT errorOccurred(tr("Playback error: %1").arg(error));
+    }
+}
+
+void PlayerWidget::onEofReached()
+{
+    // Live streams (no duration) and early drops don't count as finished.
+    if (m_duration > 0 && m_lastPosition >= m_duration - kFinishedSlackSeconds) {
+        Q_EMIT finished();
     }
 }
 

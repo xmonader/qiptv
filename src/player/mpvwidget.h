@@ -39,6 +39,7 @@ Q_SIGNALS:
     void durationChanged(double seconds);
     void pausedChanged(bool paused);
     void endReached(const QString &error); ///< error empty on clean end
+    void eofReached(); ///< the file played to its end (not stopped/replaced)
     void playbackError(const QString &message);
 
 protected:

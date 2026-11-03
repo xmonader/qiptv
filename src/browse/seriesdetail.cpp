@@ -137,7 +137,7 @@ void SeriesDetail::onEpisodeActivated(QListWidgetItem *item)
         entries.push_back({m_client->urls().seriesUrl(e.id, e.containerExtension),
                            tr("%1 — S%2E%3").arg(m_name).arg(e.season).arg(e.episodeNum)});
     }
-    Q_EMIT playEpisode(Playlist(std::move(entries), idx, false));
+    Q_EMIT playEpisode(Playlist(std::move(entries), idx, /*wraps=*/false, /*autoAdvance=*/true));
 }
 
 void SeriesDetail::onImageLoaded(const QString &url, const QImage &image)

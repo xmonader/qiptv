@@ -143,6 +143,11 @@ PlayerWidget *MainWindow::ensurePlayer()
     });
     connect(m_player, &PlayerWidget::nextRequested, this, [this] { stepPlaylist(1); });
     connect(m_player, &PlayerWidget::previousRequested, this, [this] { stepPlaylist(-1); });
+    connect(m_player, &PlayerWidget::finished, this, [this] {
+        if (m_playlist.autoAdvance()) {
+            stepPlaylist(1); // no-op after the last episode
+        }
+    });
     connect(m_player, &PlayerWidget::volumeChanged, this,
             [this](int v) { m_settings.setLastVolume(v); });
     // Playback errors are informational; just report them.

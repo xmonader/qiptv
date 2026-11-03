@@ -117,6 +117,33 @@ private Q_SLOTS:
         QVERIFY(!prev->isVisibleTo(&p));
     }
 
+    void finishedOnlyWhenEofNearTheEnd()
+    {
+        PlayerWidget p;
+        auto *mpv = p.findChild<MpvWidget *>();
+        QSignalSpy spy(&p, &PlayerWidget::finished);
+
+        Q_EMIT mpv->durationChanged(1800.0);
+        Q_EMIT mpv->positionChanged(600.0);
+        Q_EMIT mpv->eofReached(); // stream dropped at 10 min of 30
+        QCOMPARE(spy.count(), 0);
+
+        Q_EMIT mpv->positionChanged(1785.0);
+        Q_EMIT mpv->eofReached(); // genuine end
+        QCOMPARE(spy.count(), 1);
+    }
+
+    void liveEofIsNotFinished()
+    {
+        PlayerWidget p;
+        auto *mpv = p.findChild<MpvWidget *>();
+        QSignalSpy spy(&p, &PlayerWidget::finished);
+        Q_EMIT mpv->durationChanged(0.0);
+        Q_EMIT mpv->positionChanged(5000.0);
+        Q_EMIT mpv->eofReached();
+        QCOMPARE(spy.count(), 0);
+    }
+
     void navigationButtonsEmitRequests()
     {
         PlayerWidget p;

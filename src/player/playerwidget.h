@@ -35,6 +35,8 @@ Q_SIGNALS:
     void previousRequested();
     void nextRequested();
     void volumeChanged(int percent);
+    /// The item played through to (near) its end; time to auto-advance.
+    void finished();
 
 protected:
     void keyPressEvent(QKeyEvent *event) override;
@@ -48,6 +50,7 @@ private:
     void onDurationChanged(double seconds);
     void onPausedChanged(bool paused);
     void onEndReached(const QString &error);
+    void onEofReached();
     void onSliderMoved(int value);
     void toggleFullscreen();
     void leaveFullscreen();
@@ -74,6 +77,7 @@ private:
     QTimer *m_hideTimer = nullptr;
 
     double m_duration = 0.0;
+    double m_lastPosition = 0.0;
     bool m_userSeeking = false;
     bool m_isFullscreen = false;
     int m_wheelAccum = 0;

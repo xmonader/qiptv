@@ -68,6 +68,12 @@ private Q_SLOTS:
         QVERIFY(!flat.step(1));
     }
 
+    void autoAdvanceDefaultsOff()
+    {
+        QVERIFY(!Playlist(entries(2), 0, false).autoAdvance());
+        QVERIFY(Playlist(entries(2), 0, false, true).autoAdvance());
+    }
+
     void wrapByFullCycleIsNotAStep()
     {
         Playlist p(entries(3), 0, true);

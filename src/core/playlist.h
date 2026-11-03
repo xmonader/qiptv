@@ -23,11 +23,13 @@ class Playlist {
 public:
     Playlist() = default;
     /// An out-of-range @p current yields an empty playlist.
-    Playlist(QVector<PlaylistEntry> entries, int current, bool wraps);
+    /// @param autoAdvance  play the next entry when one finishes (episodes)
+    Playlist(QVector<PlaylistEntry> entries, int current, bool wraps, bool autoAdvance = false);
 
     bool isEmpty() const { return m_entries.isEmpty(); }
     int size() const { return static_cast<int>(m_entries.size()); }
     int currentIndex() const { return m_current; }
+    bool autoAdvance() const { return m_autoAdvance; }
     /// Requires !isEmpty().
     const PlaylistEntry &current() const { return m_entries.at(m_current); }
 
@@ -42,6 +44,7 @@ private:
     QVector<PlaylistEntry> m_entries;
     int m_current = -1;
     bool m_wraps = false;
+    bool m_autoAdvance = false;
 };
 
 } // namespace qiptv

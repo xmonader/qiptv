@@ -252,6 +252,9 @@ void MpvWidget::onMpvEvents()
                 Q_EMIT endReached(QString::fromUtf8(mpv_error_string(ef->error)));
             } else {
                 Q_EMIT endReached(QString());
+                if (ef->reason == MPV_END_FILE_REASON_EOF) {
+                    Q_EMIT eofReached();
+                }
             }
             break;
         }

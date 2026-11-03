@@ -4,8 +4,9 @@
 
 namespace qiptv {
 
-Playlist::Playlist(QVector<PlaylistEntry> entries, int current, bool wraps)
+Playlist::Playlist(QVector<PlaylistEntry> entries, int current, bool wraps, bool autoAdvance)
     : m_wraps(wraps)
+    , m_autoAdvance(autoAdvance)
 {
     if (current >= 0 && current < entries.size()) {
         m_entries = std::move(entries);
