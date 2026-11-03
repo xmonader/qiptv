@@ -39,6 +39,9 @@ MpvWidget::MpvWidget(QWidget *parent)
     mpv_set_option_string(m_mpv, "vo", "libmpv");
     mpv_set_option_string(m_mpv, "hwdec", "auto-safe");
     mpv_set_option_string(m_mpv, "osc", "no");
+    // Our volume slider goes to 150%; mpv's default volume-max is 130 and it
+    // rejects anything above, so the top of the slider would do nothing.
+    mpv_set_option_string(m_mpv, "volume-max", "150");
     mpv_set_option_string(m_mpv, "input-default-bindings", "no");
     mpv_set_option_string(m_mpv, "input-vo-keyboard", "no");
     // Network resilience for live IPTV streams.
