@@ -3,6 +3,7 @@
 #include "config/profile.h"
 #include "config/profilestore.h"
 #include "config/settings.h"
+#include "core/playlist.h"
 
 #include <QMainWindow>
 
@@ -48,7 +49,9 @@ private:
     void onLoginRequested(const Profile &profile);
     void onAuthenticated(const ServerInfo &info);
     void onError(const QString &message);
-    void onPlayRequested(const QString &url, const QString &title);
+    void onPlayRequested(const Playlist &playlist);
+    void stepPlaylist(int delta);
+    void playCurrentEntry();
     void onOpenSeries(const QString &seriesId, const QString &name);
     void showLogin();
 
@@ -63,6 +66,7 @@ private:
     ProfileStore m_store;
     Settings m_settings;
     Profile m_pending;        ///< profile awaiting save once auth succeeds
+    Playlist m_playlist;      ///< what next/previous walks through
     bool m_forceQuit = false; ///< set by the tray Quit action to bypass close-to-tray
 };
 

@@ -236,28 +236,32 @@ void BrowseWidget::onCategoryChanged()
     }
 }
 
-bool BrowseWidget::canZap() const
+PlaylistEntry BrowseWidget::entryFor(const QListWidgetItem *item) const
 {
-    return currentSection() == Live && m_content->count() > 0;
+    const int id = item->data(IdRole).toInt();
+    if (static_cast<Section>(item->data(KindRole).toInt()) == Live) {
+        return {m_client->urls().liveUrl(id, m_liveContainer), item->text()};
+    }
+    return {m_client->urls().vodUrl(id, item->data(ExtRole).toString()), item->text()};
 }
 
-void BrowseWidget::zap(int delta)
+Playlist BrowseWidget::playlistFrom(const QListWidgetItem *activated) const
 {
-    if (!canZap() || delta == 0) {
-        return;
-    }
-    const int count = m_content->count();
-    int row = m_currentRow;
-    // Step over hidden (filtered-out) items; give up after a full loop.
-    for (int tries = 0; tries < count; ++tries) {
-        row = ((row + delta) % count + count) % count;
-        QListWidgetItem *candidate = m_content->item(row);
-        if (!candidate->isHidden()) {
-            m_content->setCurrentItem(candidate);
-            onContentActivated(candidate);
-            return;
+    // Snapshot the visible (not search-filtered) items of the same kind, in
+    // display order, so next/previous follows what the user sees.
+    const int kind = activated->data(KindRole).toInt();
+    QVector<PlaylistEntry> entries;
+    int current = -1;
+    for (int row = 0; row < m_content->count(); ++row) {
+        const QListWidgetItem *it = m_content->item(row);
+        if (it == activated) {
+            current = static_cast<int>(entries.size());
+        } else if (it->isHidden() || it->data(KindRole).toInt() != kind) {
+            continue;
         }
+        entries.push_back(entryFor(it));
     }
+    return Playlist(std::move(entries), current, kind == Live);
 }
 
 void BrowseWidget::onContentActivated(QListWidgetItem *item)
@@ -265,20 +269,12 @@ void BrowseWidget::onContentActivated(QListWidgetItem *item)
     if (!item) {
         return;
     }
-    m_currentRow = m_content->row(item);
     const Section kind = static_cast<Section>(item->data(KindRole).toInt());
     switch (kind) {
-    case Live: {
-        const int id = item->data(IdRole).toInt();
-        Q_EMIT playRequested(m_client->urls().liveUrl(id, m_liveContainer), item->text());
+    case Live:
+    case Movies:
+        Q_EMIT playRequested(playlistFrom(item));
         break;
-    }
-    case Movies: {
-        const int id = item->data(IdRole).toInt();
-        const QString ext = item->data(ExtRole).toString();
-        Q_EMIT playRequested(m_client->urls().vodUrl(id, ext), item->text());
-        break;
-    }
     case Series: {
         const QString id = item->data(IdRole).toString();
         Q_EMIT openSeriesRequested(id, item->text());

@@ -97,16 +97,37 @@ private Q_SLOTS:
         QVERIFY(!button(p, "seekForward")->isEnabled());
     }
 
-    void channelButtonsOnlyForZappablePlayback()
+    void navigationButtonsFollowPlaylistPosition()
     {
         PlayerWidget p;
-        p.play(QStringLiteral("/nonexistent/qiptv-test.ts"), QStringLiteral("Movie"), false);
-        QVERIFY(!button(p, "previousChannel")->isVisibleTo(&p));
-        QVERIFY(!button(p, "nextChannel")->isVisibleTo(&p));
-        p.play(QStringLiteral("/nonexistent/qiptv-test.ts"), QStringLiteral("Channel"), true);
-        QVERIFY(button(p, "previousChannel")->isVisibleTo(&p));
-        QVERIFY(button(p, "nextChannel")->isVisibleTo(&p));
-        p.stop();
+        auto *prev = button(p, "previous");
+        auto *next = button(p, "next");
+        // Nothing to navigate (fresh player or single movie): hidden.
+        QVERIFY(!prev->isVisibleTo(&p));
+        QVERIFY(!next->isVisibleTo(&p));
+        // First episode of a series: next only.
+        p.setNavigation(false, true);
+        QVERIFY(prev->isVisibleTo(&p) && next->isVisibleTo(&p));
+        QVERIFY(!prev->isEnabled());
+        QVERIFY(next->isEnabled());
+        // Middle of a list.
+        p.setNavigation(true, true);
+        QVERIFY(prev->isEnabled() && next->isEnabled());
+        p.setNavigation(false, false);
+        QVERIFY(!prev->isVisibleTo(&p));
+    }
+
+    void navigationButtonsEmitRequests()
+    {
+        PlayerWidget p;
+        p.setNavigation(true, true);
+        QSignalSpy nextSpy(&p, &PlayerWidget::nextRequested);
+        QSignalSpy prevSpy(&p, &PlayerWidget::previousRequested);
+        button(p, "next")->click();
+        QTest::keyClick(&p, Qt::Key_N);
+        button(p, "previous")->click();
+        QCOMPARE(nextSpy.count(), 2);
+        QCOMPARE(prevSpy.count(), 1);
     }
 };
 

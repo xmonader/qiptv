@@ -141,8 +141,8 @@ PlayerWidget *MainWindow::ensurePlayer()
         raise();
         activateWindow();
     });
-    connect(m_player, &PlayerWidget::nextRequested, m_browse, [this] { m_browse->zap(1); });
-    connect(m_player, &PlayerWidget::previousRequested, m_browse, [this] { m_browse->zap(-1); });
+    connect(m_player, &PlayerWidget::nextRequested, this, [this] { stepPlaylist(1); });
+    connect(m_player, &PlayerWidget::previousRequested, this, [this] { stepPlaylist(-1); });
     connect(m_player, &PlayerWidget::volumeChanged, this,
             [this](int v) { m_settings.setLastVolume(v); });
     // Playback errors are informational; just report them.
@@ -225,8 +225,8 @@ void MainWindow::setupMediaKeys()
     const std::vector<Binding> bindings = {
         {Qt::Key_MediaTogglePlayPause, [this] { if (m_player) m_player->togglePause(); }},
         {Qt::Key_MediaStop, [this] { if (m_player) m_player->stop(); }},
-        {Qt::Key_MediaNext, [this] { m_browse->zap(1); }},
-        {Qt::Key_MediaPrevious, [this] { m_browse->zap(-1); }},
+        {Qt::Key_MediaNext, [this] { stepPlaylist(1); }},
+        {Qt::Key_MediaPrevious, [this] { stepPlaylist(-1); }},
     };
     for (const auto &b : bindings) {
         auto *shortcut = new QShortcut(QKeySequence(b.key), this);
@@ -281,11 +281,28 @@ void MainWindow::onAuthenticated(const ServerInfo &info)
     m_stack->setCurrentWidget(m_browse);
 }
 
-void MainWindow::onPlayRequested(const QString &url, const QString &title)
+void MainWindow::onPlayRequested(const Playlist &playlist)
 {
-    // Remember whether we came from the browser or a series detail so Back
-    // returns to the right place. When zapping (already on the player), keep
-    // the remembered page.
+    if (playlist.isEmpty()) {
+        return;
+    }
+    m_playlist = playlist;
+    playCurrentEntry();
+}
+
+void MainWindow::stepPlaylist(int delta)
+{
+    // No-op at the ends of a non-wrapping list (buttons are disabled there,
+    // but media keys can still arrive).
+    if (m_playlist.step(delta)) {
+        playCurrentEntry();
+    }
+}
+
+void MainWindow::playCurrentEntry()
+{
+    const PlaylistEntry &entry = m_playlist.current();
+    const QString &title = entry.title;
     PlayerWidget *player = ensurePlayer();
     // Show BEFORE loading: loadfile triggers video init, which reverts to a
     // windowed VO (a separate OS window) unless the render context already
@@ -293,10 +310,8 @@ void MainWindow::onPlayRequested(const QString &url, const QString &title)
     player->show();
     player->raise();
     player->activateWindow();
-    // Channel zapping only makes sense for live channels picked in the
-    // browser; movies and series episodes get seek controls instead.
-    const bool zappable = sender() == m_browse && m_browse->canZap();
-    player->play(url, title, zappable);
+    player->play(entry.url, title);
+    player->setNavigation(m_playlist.canStep(-1), m_playlist.canStep(1));
     notify(tr("Now playing"), title);
     if (m_tray) {
         m_tray->setToolTip(tr("qiptv — %1").arg(title));

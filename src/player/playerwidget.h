@@ -21,8 +21,10 @@ class PlayerWidget : public QWidget {
 public:
     explicit PlayerWidget(QWidget *parent = nullptr);
 
-    /// @param zappable  show previous/next-channel buttons (live channels only)
-    void play(const QString &url, const QString &title, bool zappable = false);
+    void play(const QString &url, const QString &title);
+    /// Previous/next buttons: hidden when neither is possible (single item),
+    /// otherwise shown and enabled per direction.
+    void setNavigation(bool canPrevious, bool canNext);
     void stop();
     void togglePause();        ///< exposed for global media keys / tray
     void setInitialVolume(int percent);

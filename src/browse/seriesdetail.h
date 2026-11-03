@@ -1,5 +1,6 @@
 #pragma once
 
+#include "core/playlist.h"
 #include "models/series.h"
 
 #include <QWidget>
@@ -29,7 +30,9 @@ public:
     void open(const QString &seriesId, const QString &name);
 
 Q_SIGNALS:
-    void playEpisode(const QString &url, const QString &title);
+    /// Every episode of the series in season/episode order, cursor on the
+    /// activated one, so next/previous crosses season boundaries.
+    void playEpisode(const qiptv::Playlist &playlist);
     void backRequested();
 
 private:

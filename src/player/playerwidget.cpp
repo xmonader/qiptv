@@ -63,16 +63,16 @@ PlayerWidget::PlayerWidget(QWidget *parent)
     m_title->setStyleSheet(QStringLiteral("font-weight: bold;"));
 
     m_back = iconButton(QStringLiteral("go-previous"), tr("Back"), this);
-    m_previous = iconButton(QStringLiteral("media-skip-backward"), tr("Previous channel"), this);
+    m_previous = iconButton(QStringLiteral("media-skip-backward"), tr("Previous (P)"), this);
     m_playPause = iconButton(QStringLiteral("media-playback-pause"), tr("Play/Pause"), this);
     m_stop = iconButton(QStringLiteral("media-playback-stop"), tr("Stop"), this);
-    m_next = iconButton(QStringLiteral("media-skip-forward"), tr("Next channel"), this);
+    m_next = iconButton(QStringLiteral("media-skip-forward"), tr("Next (N)"), this);
     m_seekBack = iconButton(QStringLiteral("media-seek-backward"),
                             tr("Back %1 seconds (Left)").arg(kSeekStepSeconds), this);
     m_seekForward = iconButton(QStringLiteral("media-seek-forward"),
                                tr("Forward %1 seconds (Right)").arg(kSeekStepSeconds), this);
-    m_previous->setObjectName(QStringLiteral("previousChannel"));
-    m_next->setObjectName(QStringLiteral("nextChannel"));
+    m_previous->setObjectName(QStringLiteral("previous"));
+    m_next->setObjectName(QStringLiteral("next"));
     m_seekBack->setObjectName(QStringLiteral("seekBack"));
     m_seekForward->setObjectName(QStringLiteral("seekForward"));
     m_fullscreen = iconButton(QStringLiteral("view-fullscreen"), tr("Fullscreen"), this);
@@ -132,6 +132,7 @@ PlayerWidget::PlayerWidget(QWidget *parent)
     // NoFocus) give focus back here.
     setFocusPolicy(Qt::StrongFocus);
     setSeekable(false);
+    setNavigation(false, false);
 
     m_hideTimer = new QTimer(this);
     m_hideTimer->setSingleShot(true);
@@ -174,11 +175,18 @@ PlayerWidget::PlayerWidget(QWidget *parent)
     connect(m_mpv, &MpvWidget::playbackError, this, &PlayerWidget::errorOccurred);
 }
 
-void PlayerWidget::play(const QString &url, const QString &title, bool zappable)
+void PlayerWidget::setNavigation(bool canPrevious, bool canNext)
+{
+    const bool any = canPrevious || canNext;
+    m_previous->setVisible(any);
+    m_next->setVisible(any);
+    m_previous->setEnabled(canPrevious);
+    m_next->setEnabled(canNext);
+}
+
+void PlayerWidget::play(const QString &url, const QString &title)
 {
     m_title->setText(title);
-    m_previous->setVisible(zappable);
-    m_next->setVisible(zappable);
     m_duration = 0.0;
     setSeekable(false);
     m_timeLabel->setText(QStringLiteral("0:00 / 0:00"));

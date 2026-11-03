@@ -130,10 +130,14 @@ void SeriesDetail::onEpisodeActivated(QListWidgetItem *item)
     if (idx < 0 || idx >= m_info.episodes.size()) {
         return;
     }
-    const Episode &e = m_info.episodes.at(idx);
-    const QString url = m_client->urls().seriesUrl(e.id, e.containerExtension);
-    const QString title = tr("%1 — S%2E%3").arg(m_name).arg(e.season).arg(e.episodeNum);
-    Q_EMIT playEpisode(url, title);
+    // m_info.episodes is sorted by (season, episode) at parse time.
+    QVector<PlaylistEntry> entries;
+    entries.reserve(m_info.episodes.size());
+    for (const Episode &e : std::as_const(m_info.episodes)) {
+        entries.push_back({m_client->urls().seriesUrl(e.id, e.containerExtension),
+                           tr("%1 — S%2E%3").arg(m_name).arg(e.season).arg(e.episodeNum)});
+    }
+    Q_EMIT playEpisode(Playlist(std::move(entries), idx, false));
 }
 
 void SeriesDetail::onImageLoaded(const QString &url, const QImage &image)

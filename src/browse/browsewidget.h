@@ -1,5 +1,6 @@
 #pragma once
 
+#include "core/playlist.h"
 #include "models/category.h"
 
 #include <QHash>
@@ -20,7 +21,8 @@ class ImageLoader;
  * list, and a content view (channel list or poster grid). Talks to the
  * XtreamClient for data and the ImageLoader for posters/logos.
  *
- * Activating a content item emits playRequested (live/movie, ready to play) or
+ * Activating a content item emits playRequested with a playlist of the visible
+ * items in the same list (live channels wrap, movies don't), or
  * openSeriesRequested (series, which the window opens in the detail view).
  */
 class BrowseWidget : public QWidget {
@@ -33,18 +35,11 @@ public:
     /// Clear caches and fetch categories for the current section.
     void reload();
 
-    /// Zap to the next (+1) or previous (-1) live channel, wrapping around.
-    /// No-op outside the Live section or when the list is empty.
-    void zap(int delta);
-
-    /// True when zap() would act: Live section with at least one channel.
-    bool canZap() const;
-
     /// Stream container/extension used when building live channel URLs.
     void setLiveContainer(const QString &ext) { m_liveContainer = ext; }
 
 Q_SIGNALS:
-    void playRequested(const QString &url, const QString &title);
+    void playRequested(const qiptv::Playlist &playlist);
     void openSeriesRequested(const QString &seriesId, const QString &name);
 
 private:
@@ -59,6 +54,8 @@ private:
     void onImageLoaded(const QString &url, const QImage &image);
 
     Section currentSection() const;
+    PlaylistEntry entryFor(const QListWidgetItem *item) const;
+    Playlist playlistFrom(const QListWidgetItem *activated) const;
 
     QListWidget *m_sections = nullptr;
     QLineEdit *m_search = nullptr;
@@ -70,7 +67,6 @@ private:
     ImageLoader *m_images = nullptr;
 
     QHash<int, QVector<Category>> m_catCache; // section -> categories
-    int m_currentRow = -1;                    // last activated content row
     QString m_liveContainer = QStringLiteral("ts");
 };
 
