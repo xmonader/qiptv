@@ -9,6 +9,10 @@ add_executable(test_parse test_parse.cpp)
 target_link_libraries(test_parse PRIVATE qiptv_core Qt6::Test)
 add_test(NAME parse COMMAND test_parse)
 
+add_executable(test_playlist test_playlist.cpp)
+target_link_libraries(test_playlist PRIVATE qiptv_core Qt6::Test)
+add_test(NAME playlist COMMAND test_playlist)
+
 add_executable(test_models test_models.cpp)
 target_link_libraries(test_models PRIVATE qiptv_core Qt6::Test)
 add_test(NAME models COMMAND test_models)
@@ -48,5 +52,5 @@ add_test(NAME playerwidget COMMAND test_playerwidget)
 # GUI-touching tests construct a QGuiApplication/QApplication; run every test
 # under the offscreen platform so the suite is headless-safe (CI has no
 # display). Logic-only tests are unaffected by the platform choice.
-set_tests_properties(parse models urlbuilder xtreamclient profilestore settings imageloader loginwidget playerwidget
+set_tests_properties(parse playlist models urlbuilder xtreamclient profilestore settings imageloader loginwidget playerwidget
     PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")

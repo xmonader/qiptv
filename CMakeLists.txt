@@ -29,6 +29,7 @@ enable_testing()
 set(QIPTV_CORE_SOURCES
     src/core/parse.cpp
     src/core/imageloader.cpp
+    src/core/playlist.cpp
     src/api/urlbuilder.cpp
     src/api/xtreamclient.cpp
     src/models/category.cpp
