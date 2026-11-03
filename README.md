@@ -6,6 +6,8 @@
 A native **Qt** desktop IPTV client written in **C++**, targeting the
 **Xtream Codes** API with **libmpv** playback.
 
+**Website & explainer video:** https://xmonader.github.io/qiptv/
+
 Log in with your provider's server URL and credentials to browse Live TV,
 Movies (VOD) and Series, and play them with hardware-accelerated libmpv.
 
@@ -14,7 +16,7 @@ Movies (VOD) and Series, and play them with hardware-accelerated libmpv.
 - 📺 **Live TV, Movies & Series** — browse by category from any Xtream Codes provider
 - 👥 **Multiple profiles** — save several accounts; auto-login to the last used
 - ▶️ **libmpv playback** — hardware decoding, seeking (VOD/series), volume, fullscreen
-- ⏭️ **Channel zapping** — next/previous live channel via buttons or media keys
+- ⏭️ **Next/previous** — through the channels, movies or episodes you started from; episodes auto-advance
 - 🔍 **Filtering** — live text filter over the current list
 - 🎬 **Series detail** — season selector and episode list
 - 🔔 **Desktop integration** — system tray, media keys, notifications
@@ -68,7 +70,7 @@ drives the package version.
 3. After authentication, pick **Live TV**, **Movies** or **Series** in the left
    rail, choose a category, and double-click an item to play.
 4. In the player: Space toggles pause, ←/→ seek, ↑/↓ volume, `F` fullscreen,
-   `N`/`P` (or media keys) change channel, Back returns to browsing.
+   `N`/`P` (or media keys) go to the next/previous item, Back returns to browsing.
 
 ## Documentation
 
