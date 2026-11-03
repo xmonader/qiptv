@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>qiptv — Xtream Codes IPTV for Linux</title>
+<meta name="description" content="qiptv is a native Qt 6 desktop player for Xtream Codes IPTV on Linux, with libmpv playback, multiple profiles, and live TV, movies and series by category.">
+<meta property="og:title" content="qiptv — Xtream Codes IPTV for Linux">
+<meta property="og:description" content="A native Qt 6 + libmpv player for Xtream Codes IPTV providers.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="assets/explainer-poster.jpg">
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1216;
+    --bg-raised: #1b1f24;
+    --bg-sunken: #0b0d10;
+    --line: #343a41;
+    --text: #eceff2;
+    --muted: #949ca6;
+    --accent: #3daee9;
+    --accent-strong: #1d99f3;
+    --amber: #f6b845;
+    --shadow: 0 20px 60px rgba(0, 0, 0, .45);
+    --radius: 12px;
+    --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, "DejaVu Sans Mono", monospace;
+    color-scheme: dark;
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+      --bg: #f6f7f9;
+      --bg-raised: #ffffff;
+      --bg-sunken: #eceff2;
+      --line: #d7dce1;
+      --text: #15191e;
+      --muted: #59626d;
+      --accent: #1479c4;
+      --accent-strong: #0f63a3;
+      --amber: #9a6400;
+      --shadow: 0 20px 50px rgba(20, 30, 45, .12);
+      color-scheme: light;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 17px/1.6 var(--sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent); text-underline-offset: 3px; }
+  code, kbd, pre { font-family: var(--mono); }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+  @media (max-width: 600px) { .wrap { padding: 0 16px; } }
+
+  /* Header */
+  header.top {
+    position: sticky; top: 0; z-index: 10;
+    background: color-mix(in srgb, var(--bg) 85%, transparent);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  header.top .wrap { display: flex; align-items: center; gap: 24px; height: 60px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 20px;
+           color: var(--text); text-decoration: none; }
+  .brand img { width: 30px; height: 30px; }
+  nav { margin-left: auto; display: flex; gap: 22px; font-size: 15px; }
+  nav a { color: var(--muted); text-decoration: none; }
+  nav a:hover { color: var(--text); }
+  @media (max-width: 600px) { nav a:not(.gh) { display: none; } }
+
+  /* Hero */
+  .hero { padding-top: 80px; padding-bottom: 40px; }
+  .kicker { font: 600 13px/1 var(--mono); letter-spacing: .08em; color: var(--accent);
+            text-transform: uppercase; margin: 0 0 18px; }
+  h1 { font-size: clamp(36px, 6vw, 60px); line-height: 1.08; margin: 0 0 20px;
+       letter-spacing: -.02em; max-width: 14em; }
+  .lede { font-size: clamp(18px, 2.2vw, 21px); color: var(--muted); max-width: 36em; margin: 0 0 32px; }
+  .ctas { display: flex; flex-wrap: wrap; gap: 12px; }
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px;
+         border-radius: 8px; font-weight: 600; text-decoration: none; font-size: 16px;
+         border: 1px solid var(--line); color: var(--text); background: var(--bg-raised); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.primary:hover { background: var(--accent-strong); }
+  .btn:not(.primary):hover { border-color: var(--muted); }
+
+  /* Video */
+  .video { margin: 48px 0 0; }
+  .video video { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9;
+                 border-radius: var(--radius); border: 1px solid var(--line);
+                 box-shadow: var(--shadow); background: #0f1216; }
+  .video figcaption { color: var(--muted); font-size: 14px; margin-top: 12px; }
+
+  /* Sections */
+  section { padding: 72px 0; border-top: 1px solid var(--line); }
+  h2 { font-size: clamp(28px, 4vw, 38px); line-height: 1.15; margin: 0 0 12px; letter-spacing: -.01em; }
+  .section-lede { color: var(--muted); max-width: 40em; margin: 0 0 40px; }
+
+  .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 16px; }
+  .feature { background: var(--bg-raised); border: 1px solid var(--line); border-radius: var(--radius);
+             padding: 24px; }
+  .feature h3 { margin: 0 0 8px; font-size: 18px; }
+  .feature p { margin: 0; color: var(--muted); font-size: 16px; }
+  .feature .tag { font: 600 12px/1 var(--mono); color: var(--accent); letter-spacing: .06em;
+                  display: block; margin-bottom: 14px; }
+
+  /* Shortcuts */
+  .keys { width: 100%; border-collapse: collapse; max-width: 720px; }
+  .keys td { padding: 12px 0; border-bottom: 1px solid var(--line); vertical-align: middle; }
+  .keys td:first-child { width: 42%; padding-right: 16px; }
+  kbd { display: inline-block; min-width: 2em; text-align: center; padding: 3px 9px;
+        font-size: 14px; font-weight: 600; border-radius: 6px; border: 1px solid var(--line);
+        border-bottom-width: 3px; background: var(--bg-raised); color: var(--text); margin: 2px 2px 2px 0; }
+  .keys .note { color: var(--muted); font-size: 15px; }
+
+  /* Install */
+  .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
+  .step h3 { font-size: 18px; margin: 0 0 6px; }
+  .step p { color: var(--muted); margin: 0 0 12px; font-size: 16px; }
+  pre { margin: 0; background: var(--bg-sunken); border: 1px solid var(--line); border-radius: 10px;
+        padding: 16px 18px; overflow-x: auto; font-size: 14px; line-height: 1.7; color: var(--text); }
+  pre .c { color: var(--muted); }
+
+  .stack { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 32px; }
+  .chip { font: 14px/1 var(--mono); padding: 8px 12px; border: 1px solid var(--line);
+          border-radius: 999px; color: var(--muted); }
+
+  footer { border-top: 1px solid var(--line); padding: 40px 0 56px; color: var(--muted); font-size: 15px; }
+  footer .wrap { display: flex; flex-wrap: wrap; gap: 12px 32px; justify-content: space-between; }
+  footer p { margin: 0; max-width: 36em; }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#"><img src="assets/icon.svg" alt="" width="30" height="30">qiptv</a>
+    <nav>
+      <a href="#features">Features</a>
+      <a href="#shortcuts">Shortcuts</a>
+      <a href="#install">Install</a>
+      <a class="gh" href="https://github.com/xmonader/qiptv">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap hero">
+    <p class="kicker">Open source · Linux desktop</p>
+    <h1>Xtream Codes IPTV, as a proper desktop app.</h1>
+    <p class="lede">qiptv signs in to your IPTV provider and lets you browse live TV, movies and
+      series by category, then plays them with libmpv. It's native Qt 6 and C++, with no
+      browser engine and no Electron.</p>
+    <div class="ctas">
+      <a class="btn primary" href="#install">Install</a>
+      <a class="btn" href="https://github.com/xmonader/qiptv">View source on GitHub</a>
+    </div>
+
+    <figure class="video">
+      <video controls playsinline preload="metadata" poster="assets/explainer-poster.jpg"
+             width="1280" height="720">
+        <source src="assets/explainer.mp4" type="video/mp4">
+        Your browser can't play this video. <a href="assets/explainer.mp4">Download the explainer (MP4)</a>.
+      </video>
+      <figcaption>A 50-second tour. The interface is illustrated, not screen-recorded.</figcaption>
+    </figure>
+  </div>
+
+  <section id="features">
+    <div class="wrap">
+      <h2>What it does</h2>
+      <p class="section-lede">Everything you need to watch, and nothing that gets in the way.</p>
+      <div class="features">
+        <article class="feature">
+          <span class="tag">BROWSE</span>
+          <h3>Live TV, movies and series</h3>
+          <p>Pick a section and a category. Channel logos and posters load in the background, and
+            typing filters the current list.</p>
+        </article>
+        <article class="feature">
+          <span class="tag">ACCOUNTS</span>
+          <h3>Multiple profiles</h3>
+          <p>Save several providers or accounts. qiptv signs back in to the one you used last.</p>
+        </article>
+        <article class="feature">
+          <span class="tag">PLAYBACK</span>
+          <h3>libmpv underneath</h3>
+          <p>Hardware decoding where available, seeking on movies and episodes, volume up to 150%,
+            and fullscreen with controls that hide themselves.</p>
+        </article>
+        <article class="feature">
+          <span class="tag">KEEP WATCHING</span>
+          <h3>Next and previous that make sense</h3>
+          <p>Next and previous follow the list you started from. Channels wrap around, and
+            episodes carry on into the next season. When an episode finishes, the next one starts.</p>
+        </article>
+        <article class="feature">
+          <span class="tag">SERIES</span>
+          <h3>Seasons and episodes</h3>
+          <p>A series page with the plot, a season picker and the episode list. Double-click to play.</p>
+        </article>
+        <article class="feature">
+          <span class="tag">DESKTOP</span>
+          <h3>Tray, media keys, notifications</h3>
+          <p>An optional close-to-tray mode, "Now playing" notifications, and media keys that work
+            while qiptv has focus.</p>
+        </article>
+      </div>
+      <div class="stack" aria-label="Built with">
+        <span class="chip">C++17</span><span class="chip">Qt 6 Widgets</span>
+        <span class="chip">libmpv</span><span class="chip">CMake</span><span class="chip">MIT</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="shortcuts">
+    <div class="wrap">
+      <h2>Player shortcuts</h2>
+      <p class="section-lede">The player keeps keyboard focus, so these work even after you've
+        clicked a button or slider.</p>
+      <table class="keys">
+        <tbody>
+          <tr><td><kbd>Space</kbd></td><td>Play / pause</td></tr>
+          <tr><td><kbd>←</kbd> <kbd>→</kbd></td><td>Seek 10 seconds back / forward</td></tr>
+          <tr><td><kbd>↑</kbd> <kbd>↓</kbd> &nbsp;or&nbsp; <kbd>+</kbd> <kbd>−</kbd></td><td>Volume up / down by 5%</td></tr>
+          <tr><td><span class="note">Mouse wheel over the video</span></td><td>Volume up / down by 5%</td></tr>
+          <tr><td><kbd>N</kbd> <kbd>P</kbd> &nbsp;or media keys</td><td>Next / previous channel, movie or episode</td></tr>
+          <tr><td><kbd>F</kbd></td><td>Toggle fullscreen</td></tr>
+          <tr><td><kbd>Esc</kbd></td><td>Leave fullscreen</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="install">
+    <div class="wrap">
+      <h2>Install</h2>
+      <p class="section-lede">qiptv is built from source. On Debian and Ubuntu you can package it as a
+        <code>.deb</code> in one command and install that, so it upgrades and uninstalls cleanly.</p>
+      <div class="steps">
+        <div class="step">
+          <h3>1. Get the dependencies</h3>
+          <p>A C++17 compiler, CMake ≥ 3.20, Qt ≥ 6.5 and libmpv.</p>
+<pre><span class="c"># Debian / Ubuntu</span>
+sudo apt install build-essential cmake \
+  qt6-base-dev libmpv-dev \
+  debhelper dpkg-dev fakeroot</pre>
+        </div>
+        <div class="step">
+          <h3>2. Build and install a .deb</h3>
+          <p>The build runs the test suite, then you install the resulting package.</p>
+<pre>git clone https://github.com/xmonader/qiptv
+cd qiptv
+make deb
+sudo apt install ./dist/qiptv_*.deb</pre>
+        </div>
+        <div class="step">
+          <h3>Or just run it</h3>
+          <p>Build and run straight from the source tree, without installing anything.</p>
+<pre>make build
+make test
+make run</pre>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>qiptv is MIT licensed. It's for IPTV services you're legally entitled to use, and it
+      ships no content and no provider credentials.</p>
+    <p><a href="https://github.com/xmonader/qiptv">Source</a> ·
+      <a href="https://github.com/xmonader/qiptv/blob/main/CHANGELOG.md">Changelog</a> ·
+      <a href="https://github.com/xmonader/qiptv/issues">Issues</a></p>
+  </div>
+</footer>
+</body>
+</html>
