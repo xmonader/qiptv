@@ -75,6 +75,13 @@ void ImageLoader::load(const QString &url)
     }
 }
 
+void ImageLoader::cancelPending()
+{
+    while (!m_queue.isEmpty()) {
+        m_inFlight.remove(m_queue.dequeue());
+    }
+}
+
 void ImageLoader::startRequest(const QString &url)
 {
     ++m_active;

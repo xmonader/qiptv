@@ -180,6 +180,37 @@ private Q_SLOTS:
         QVERIFY(loader.cachedBytes() >= 320 * 480 * 4);
     }
 
+    void cancelPendingDropsQueuedRequests()
+    {
+        ImageServer server;
+        server.body = makePng();
+        QVERIFY(server.start());
+
+        QNetworkAccessManager nam;
+        ImageLoader loader(&nam);
+        loader.setMaxConcurrent(1);
+        int loadedCount = 0;
+        connect(&loader, &ImageLoader::loaded, [&](const QString &, const QImage &) { ++loadedCount; });
+
+        const QString queued = server.url() + QStringLiteral("?q1");
+        loader.load(server.url() + QStringLiteral("?first"));
+        loader.load(queued);
+        loader.load(server.url() + QStringLiteral("?q2"));
+        QCOMPARE(loader.pendingCount(), 2);
+
+        loader.cancelPending();
+        QCOMPARE(loader.pendingCount(), 0);
+        QTRY_VERIFY_WITH_TIMEOUT(loadedCount == 1, 3000); // in-flight one completes
+        QTest::qWait(200);
+        QCOMPARE(loadedCount, 1);
+        QCOMPARE(server.requestCount, 1);
+
+        // A cancelled URL is no longer considered in flight: it can be reloaded.
+        loader.load(queued);
+        QTRY_VERIFY_WITH_TIMEOUT(loadedCount == 2, 3000);
+        QCOMPARE(server.requestCount, 2);
+    }
+
     void nonImageDataFails()
     {
         ImageServer server;

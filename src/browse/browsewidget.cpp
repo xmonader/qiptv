@@ -295,6 +295,7 @@ void BrowseWidget::applyFilter(const QString &text)
 
 void BrowseWidget::clearContent()
 {
+    m_images->cancelPending(); // posters for the old list are no longer needed
     m_itemsByIconUrl.clear();
     m_content->clear();
 }

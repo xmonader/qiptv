@@ -49,6 +49,12 @@ public:
     bool isCached(const QString &url) const { return m_cache.contains(url); }
 
     void load(const QString &url);
+    /// Drop queued requests that have not started yet (in-flight ones still
+    /// complete). Call when the view that asked for them is replaced, so a
+    /// category of thousands of posters doesn't keep downloading after the
+    /// user has moved on.
+    void cancelPending();
+    int pendingCount() const { return int(m_queue.size()); }
 
 Q_SIGNALS:
     void loaded(const QString &url, const QImage &image);
