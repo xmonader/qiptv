@@ -42,6 +42,10 @@ add_executable(test_loginwidget test_loginwidget.cpp ${CMAKE_SOURCE_DIR}/src/aut
 target_link_libraries(test_loginwidget PRIVATE qiptv_core Qt6::Test Qt6::Widgets)
 add_test(NAME loginwidget COMMAND test_loginwidget)
 
+add_executable(test_browsewidget test_browsewidget.cpp ${CMAKE_SOURCE_DIR}/src/browse/browsewidget.cpp)
+target_link_libraries(test_browsewidget PRIVATE qiptv_core Qt6::Test Qt6::Widgets Qt6::Network)
+add_test(NAME browsewidget COMMAND test_browsewidget)
+
 add_executable(test_playerwidget test_playerwidget.cpp
     ${CMAKE_SOURCE_DIR}/src/player/playerwidget.cpp
     ${CMAKE_SOURCE_DIR}/src/player/mpvwidget.cpp)
@@ -52,5 +56,5 @@ add_test(NAME playerwidget COMMAND test_playerwidget)
 # GUI-touching tests construct a QGuiApplication/QApplication; run every test
 # under the offscreen platform so the suite is headless-safe (CI has no
 # display). Logic-only tests are unaffected by the platform choice.
-set_tests_properties(parse playlist models urlbuilder xtreamclient profilestore settings imageloader loginwidget playerwidget
+set_tests_properties(parse playlist models urlbuilder xtreamclient profilestore settings imageloader loginwidget browsewidget playerwidget
     PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")

@@ -104,13 +104,13 @@ BrowseWidget::BrowseWidget(XtreamClient *client, ImageLoader *images, QWidget *p
         if (currentSection() != Live) {
             return;
         }
-        m_content->clear();
+        clearContent();
         for (const LiveStream &s : streams) {
             auto *item = new QListWidgetItem(fallbackIcon(Live), s.name);
             item->setData(IdRole, s.streamId);
             item->setData(IconUrlRole, s.streamIcon);
             item->setData(KindRole, int(Live));
-            m_content->addItem(item);
+            addContentItem(item, s.streamIcon);
             if (!s.streamIcon.isEmpty()) {
                 m_images->load(s.streamIcon);
             }
@@ -123,14 +123,14 @@ BrowseWidget::BrowseWidget(XtreamClient *client, ImageLoader *images, QWidget *p
         if (currentSection() != Movies) {
             return;
         }
-        m_content->clear();
+        clearContent();
         for (const VodStream &s : streams) {
             auto *item = new QListWidgetItem(fallbackIcon(Movies), s.name);
             item->setData(IdRole, s.streamId);
             item->setData(IconUrlRole, s.icon);
             item->setData(ExtRole, s.containerExtension);
             item->setData(KindRole, int(Movies));
-            m_content->addItem(item);
+            addContentItem(item, s.icon);
             if (!s.icon.isEmpty()) {
                 m_images->load(s.icon);
             }
@@ -143,13 +143,13 @@ BrowseWidget::BrowseWidget(XtreamClient *client, ImageLoader *images, QWidget *p
         if (currentSection() != Series) {
             return;
         }
-        m_content->clear();
+        clearContent();
         for (const qiptv::Series &s : series) {
             auto *item = new QListWidgetItem(fallbackIcon(Series), s.name);
             item->setData(IdRole, QString::number(s.seriesId));
             item->setData(IconUrlRole, s.cover);
             item->setData(KindRole, int(Series));
-            m_content->addItem(item);
+            addContentItem(item, s.cover);
             if (!s.cover.isEmpty()) {
                 m_images->load(s.cover);
             }
@@ -192,7 +192,7 @@ void BrowseWidget::requestCategories(Section s)
 void BrowseWidget::onSectionChanged()
 {
     const Section s = currentSection();
-    m_content->clear();
+    clearContent();
     m_status->clear();
     if (m_catCache.contains(s)) {
         populateCategories(m_catCache.value(s));
@@ -293,17 +293,40 @@ void BrowseWidget::applyFilter(const QString &text)
     }
 }
 
+void BrowseWidget::clearContent()
+{
+    m_itemsByIconUrl.clear();
+    m_content->clear();
+}
+
+void BrowseWidget::addContentItem(QListWidgetItem *item, const QString &iconUrl)
+{
+    m_content->addItem(item);
+    if (!iconUrl.isEmpty()) {
+        m_itemsByIconUrl[iconUrl].append(item);
+    }
+}
+
 void BrowseWidget::onImageLoaded(const QString &url, const QImage &image)
 {
-    if (image.isNull()) {
+    const auto it = m_itemsByIconUrl.constFind(url);
+    if (image.isNull() || it == m_itemsByIconUrl.constEnd()) {
         return;
     }
-    const QPixmap pix = QPixmap::fromImage(image);
-    for (int i = 0; i < m_content->count(); ++i) {
-        QListWidgetItem *item = m_content->item(i);
-        if (item->data(IconUrlRole).toString() == url) {
-            item->setIcon(QIcon(pix));
-        }
+    // Keep only a thumbnail at the on-screen icon size: every list item holds
+    // its icon for as long as the list is shown, so full-size posters here
+    // multiply by the item count (thousands in a VOD category).
+    const qreal dpr = devicePixelRatioF();
+    const QSize target = m_content->iconSize() * dpr;
+    QImage thumb = image;
+    if (image.width() > target.width() || image.height() > target.height()) {
+        thumb = image.scaled(target, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    }
+    QPixmap pix = QPixmap::fromImage(thumb);
+    pix.setDevicePixelRatio(dpr);
+    const QIcon icon(pix);
+    for (QListWidgetItem *item : it.value()) {
+        item->setIcon(icon);
     }
 }
 

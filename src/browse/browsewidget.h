@@ -4,6 +4,7 @@
 #include "models/category.h"
 
 #include <QHash>
+#include <QList>
 #include <QWidget>
 
 class QListWidget;
@@ -52,6 +53,10 @@ private:
     void requestCategories(Section s);
 
     void onImageLoaded(const QString &url, const QImage &image);
+    /// Clear the content view and the icon-URL index (which holds raw item
+    /// pointers, so the two must always be cleared together).
+    void clearContent();
+    void addContentItem(QListWidgetItem *item, const QString &iconUrl);
 
     Section currentSection() const;
     PlaylistEntry entryFor(const QListWidgetItem *item) const;
@@ -67,6 +72,7 @@ private:
     ImageLoader *m_images = nullptr;
 
     QHash<int, QVector<Category>> m_catCache; // section -> categories
+    QHash<QString, QList<QListWidgetItem *>> m_itemsByIconUrl; // owned by m_content
     QString m_liveContainer = QStringLiteral("ts");
 };
 
