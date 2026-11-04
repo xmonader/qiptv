@@ -48,9 +48,9 @@ private:
     QTcpServer m_server;
 };
 
-static QByteArray makePng()
+static QByteArray makePng(int w = 4, int h = 4)
 {
-    QImage img(4, 4, QImage::Format_RGB32);
+    QImage img(w, h, QImage::Format_RGB32);
     img.fill(Qt::red);
     QByteArray bytes;
     QBuffer buf(&bytes);
@@ -119,6 +119,40 @@ private Q_SLOTS:
         }
         QTRY_VERIFY_WITH_TIMEOUT(loadedCount == 6, 4000);
         QCOMPARE(server.requestCount, 6);
+    }
+
+    void largeImagesAreDownscaledOnDecode()
+    {
+        ImageServer server;
+        server.body = makePng(2000, 3000);
+        QVERIFY(server.start());
+
+        QNetworkAccessManager nam;
+        ImageLoader loader(&nam);
+        QCOMPARE(loader.maxImageSize(), QSize(320, 480));
+        QImage got;
+        connect(&loader, &ImageLoader::loaded, [&](const QString &, const QImage &img) { got = img; });
+        loader.load(server.url());
+        QTRY_VERIFY_WITH_TIMEOUT(!got.isNull(), 5000);
+        // Fits the bound with aspect ratio kept (2:3 -> 320x480).
+        QCOMPARE(got.size(), QSize(320, 480));
+        QVERIFY(got.sizeInBytes() <= 320 * 480 * 4);
+    }
+
+    void customBoundKeepsAspectRatio()
+    {
+        ImageServer server;
+        server.body = makePng(1000, 500);
+        QVERIFY(server.start());
+
+        QNetworkAccessManager nam;
+        ImageLoader loader(&nam);
+        loader.setMaxImageSize(QSize(96, 96));
+        QImage got;
+        connect(&loader, &ImageLoader::loaded, [&](const QString &, const QImage &img) { got = img; });
+        loader.load(server.url());
+        QTRY_VERIFY_WITH_TIMEOUT(!got.isNull(), 5000);
+        QCOMPARE(got.size(), QSize(96, 48));
     }
 
     void nonImageDataFails()

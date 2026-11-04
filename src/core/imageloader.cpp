@@ -1,5 +1,7 @@
 #include "core/imageloader.h"
 
+#include <QBuffer>
+#include <QImageReader>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
@@ -26,6 +28,31 @@ void ImageLoader::cacheInsert(const QString &url, const QImage &image)
         m_cache.erase(m_cache.begin());
     }
     m_cache.insert(url, image);
+}
+
+QImage ImageLoader::decode(const QByteArray &bytes) const
+{
+    QBuffer buffer;
+    buffer.setData(bytes);
+    if (!buffer.open(QIODevice::ReadOnly)) {
+        return {};
+    }
+    QImageReader reader(&buffer);
+    const bool bounded = m_maxImageSize.isValid();
+    const QSize source = reader.size();
+    // Ask the decoder to scale while decoding (JPEG can skip most of the work)
+    // so the full-size bitmap never exists.
+    if (bounded && source.isValid()
+        && (source.width() > m_maxImageSize.width() || source.height() > m_maxImageSize.height())) {
+        reader.setScaledSize(source.scaled(m_maxImageSize, Qt::KeepAspectRatio));
+    }
+    QImage image = reader.read();
+    // Formats that can't report their size up front: scale after decoding.
+    if (bounded && !image.isNull()
+        && (image.width() > m_maxImageSize.width() || image.height() > m_maxImageSize.height())) {
+        image = image.scaled(m_maxImageSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    }
+    return image;
 }
 
 void ImageLoader::load(const QString &url)
@@ -70,8 +97,8 @@ void ImageLoader::startRequest(const QString &url)
         --m_active;
 
         if (reply->error() == QNetworkReply::NoError) {
-            QImage image;
-            if (image.loadFromData(reply->readAll())) {
+            const QImage image = decode(reply->readAll());
+            if (!image.isNull()) {
                 cacheInsert(url, image);
                 Q_EMIT loaded(url, image);
             } else {

@@ -5,6 +5,7 @@
 #include <QObject>
 #include <QQueue>
 #include <QSet>
+#include <QSize>
 
 class QNetworkAccessManager;
 
@@ -23,6 +24,11 @@ namespace qiptv {
  * IPTV provider serving a category of hundreds of posters will refuse a flood
  * of simultaneous connections ("excessive load detected") and return truncated
  * images. HTTP/2 is disabled for the same reason — these CDNs multiplex poorly.
+ *
+ * Images are decoded no larger than maxImageSize() (aspect ratio kept, never
+ * upscaled). Provider posters are often 600x900 up to multi-megapixel
+ * originals; holding them decoded at full size cost gigabytes of RAM for a
+ * grid that only shows small thumbnails.
  */
 class ImageLoader : public QObject {
     Q_OBJECT
@@ -32,6 +38,10 @@ public:
 
     /// Cap on cached entries (LRU-ish: oldest cleared when exceeded).
     void setCacheLimit(int entries) { m_cacheLimit = entries; }
+    /// Decoded images are downscaled to fit within this size (aspect kept,
+    /// never upscaled). An invalid size disables the bound.
+    void setMaxImageSize(const QSize &size) { m_maxImageSize = size; }
+    QSize maxImageSize() const { return m_maxImageSize; }
     /// Maximum simultaneous network requests; the rest queue.
     void setMaxConcurrent(int n) { m_maxConcurrent = n; }
     bool isCached(const QString &url) const { return m_cache.contains(url); }
@@ -44,6 +54,7 @@ Q_SIGNALS:
 
 private:
     void cacheInsert(const QString &url, const QImage &image);
+    QImage decode(const QByteArray &bytes) const;
     void startRequest(const QString &url);
     void pumpQueue();
 
@@ -55,6 +66,7 @@ private:
     int m_maxConcurrent = 6;
     int m_cacheLimit = 512;
     int m_timeoutMs = 15000;
+    QSize m_maxImageSize{320, 480}; // 2x the largest on-screen poster (160x240)
 };
 
 } // namespace qiptv
