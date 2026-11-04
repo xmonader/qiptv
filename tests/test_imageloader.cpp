@@ -155,6 +155,31 @@ private Q_SLOTS:
         QCOMPARE(got.size(), QSize(96, 48));
     }
 
+    void cacheIsBoundedByBytes()
+    {
+        ImageServer server;
+        server.body = makePng(320, 480); // ~600 KiB decoded
+        QVERIFY(server.start());
+
+        QNetworkAccessManager nam;
+        ImageLoader loader(&nam);
+        loader.setCacheLimitBytes(1024 * 1024); // room for one, not two
+        int loadedCount = 0;
+        connect(&loader, &ImageLoader::loaded, [&](const QString &, const QImage &) { ++loadedCount; });
+
+        const QString a = server.url() + QStringLiteral("?a");
+        const QString b = server.url() + QStringLiteral("?b");
+        loader.load(a);
+        QTRY_VERIFY_WITH_TIMEOUT(loadedCount == 1, 3000);
+        loader.load(b);
+        QTRY_VERIFY_WITH_TIMEOUT(loadedCount == 2, 3000);
+
+        QVERIFY(!loader.isCached(a)); // evicted (least recently used)
+        QVERIFY(loader.isCached(b));
+        QVERIFY(loader.cachedBytes() <= 1024 * 1024);
+        QVERIFY(loader.cachedBytes() >= 320 * 480 * 4);
+    }
+
     void nonImageDataFails()
     {
         ImageServer server;

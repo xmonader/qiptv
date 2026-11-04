@@ -22,12 +22,10 @@ ImageLoader::ImageLoader(QNetworkAccessManager *nam, QObject *parent)
 
 void ImageLoader::cacheInsert(const QString &url, const QImage &image)
 {
-    if (m_cacheLimit > 0 && m_cache.size() >= m_cacheLimit && !m_cache.contains(url)) {
-        // Cheap eviction: drop an arbitrary existing entry. Good enough for a
-        // poster cache; a strict LRU isn't worth the bookkeeping here.
-        m_cache.erase(m_cache.begin());
-    }
-    m_cache.insert(url, image);
+    // QCache owns the copy (implicitly shared, so no pixel copy) and evicts
+    // least-recently-used entries once the byte budget is exceeded. An image
+    // larger than the whole budget is simply not cached.
+    m_cache.insert(url, new QImage(image), costFor(image.sizeInBytes()));
 }
 
 QImage ImageLoader::decode(const QByteArray &bytes) const
@@ -61,9 +59,8 @@ void ImageLoader::load(const QString &url)
         Q_EMIT failed(url);
         return;
     }
-    const auto it = m_cache.constFind(url);
-    if (it != m_cache.constEnd()) {
-        Q_EMIT loaded(url, it.value());
+    if (const QImage *cached = m_cache.object(url)) { // also marks it recently used
+        Q_EMIT loaded(url, *cached);
         return;
     }
     if (m_inFlight.contains(url)) {

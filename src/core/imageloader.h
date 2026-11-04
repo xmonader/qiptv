@@ -1,6 +1,6 @@
 #pragma once
 
-#include <QHash>
+#include <QCache>
 #include <QImage>
 #include <QObject>
 #include <QQueue>
@@ -36,8 +36,10 @@ public:
     explicit ImageLoader(QObject *parent = nullptr);
     ImageLoader(QNetworkAccessManager *nam, QObject *parent = nullptr);
 
-    /// Cap on cached entries (LRU-ish: oldest cleared when exceeded).
-    void setCacheLimit(int entries) { m_cacheLimit = entries; }
+    /// Cap on decoded bytes held by the cache (least recently used evicted).
+    void setCacheLimitBytes(qint64 bytes) { m_cache.setMaxCost(costFor(bytes)); }
+    /// Decoded bytes currently held by the cache (KiB granularity).
+    qint64 cachedBytes() const { return qint64(m_cache.totalCost()) * 1024; }
     /// Decoded images are downscaled to fit within this size (aspect kept,
     /// never upscaled). An invalid size disables the bound.
     void setMaxImageSize(const QSize &size) { m_maxImageSize = size; }
@@ -53,18 +55,18 @@ Q_SIGNALS:
     void failed(const QString &url);
 
 private:
+    static qsizetype costFor(qint64 bytes) { return qsizetype((bytes + 1023) / 1024); }
     void cacheInsert(const QString &url, const QImage &image);
     QImage decode(const QByteArray &bytes) const;
     void startRequest(const QString &url);
     void pumpQueue();
 
     QNetworkAccessManager *m_nam = nullptr;
-    QHash<QString, QImage> m_cache;
+    QCache<QString, QImage> m_cache{costFor(64 * 1024 * 1024)}; // cost = KiB
     QSet<QString> m_inFlight;   // requested or queued (for dedup)
     QQueue<QString> m_queue;    // waiting for a free slot
     int m_active = 0;           // requests currently in flight
     int m_maxConcurrent = 6;
-    int m_cacheLimit = 512;
     int m_timeoutMs = 15000;
     QSize m_maxImageSize{320, 480}; // 2x the largest on-screen poster (160x240)
 };
