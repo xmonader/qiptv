@@ -1,7 +1,10 @@
 #include "app/mainwindow.h"
+#include "core/singleinstance.h"
 
 #include <QApplication>
 #include <QCommandLineParser>
+#include <QDir>
+#include <QStandardPaths>
 
 int main(int argc, char *argv[])
 {
@@ -20,7 +23,22 @@ int main(int argc, char *argv[])
     parser.addVersionOption();
     parser.process(app);
 
+    // One instance per user: a second launch raises the running window.
+    QString runtimeDir = QStandardPaths::writableLocation(QStandardPaths::RuntimeLocation);
+    if (runtimeDir.isEmpty()) {
+        runtimeDir = QDir::tempPath();
+    }
+    qiptv::SingleInstance instance(runtimeDir, QStringLiteral("io.github.xmonader.qiptv"));
+    if (!instance.tryBecomePrimary()) {
+        return 0;
+    }
+
     auto *window = new qiptv::MainWindow();
+    QObject::connect(&instance, &qiptv::SingleInstance::activationRequested, window, [window] {
+        window->showNormal();
+        window->raise();
+        window->activateWindow();
+    });
     window->show();
 
     return app.exec();
